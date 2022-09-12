@@ -1,0 +1,17 @@
+---
+- name: Provision Wsler development environment
+  hosts: factory
+  tasks:
+    - name: Ensure packages are up-to-date.
+      become: yes
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: "{{ 3600 * 24 * 7 }}" # 7 days
+        upgrade: true
+
+    - name: Enable noninteractive SSH password authentication
+      become: yes
+      ansible.builtin.apt:
+        package:
+          - sshpass
+        state: present
