@@ -1,0 +1,59 @@
+---
+- name: Install the Friendly Interactive Shell
+  hosts: factory
+  vars:
+    fish_path: /usr/bin/fish
+
+  tasks:
+    - name: Add the Personal Package Archive
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: 'ppa:fish-shell/release-3'
+        state: present
+
+    - name: Install Fish shell
+      become: yes
+      ansible.builtin.apt:
+        package: fish
+        state: present
+
+    - name: Is Fish the default shell?
+      ansible.builtin.shell:
+        cmd: 'cat /etc/passwd | grep $(whoami) | cut -d: -f7'
+      register: current_shell
+      changed_when: no
+
+    - name: Make Fish the default shell
+      when: current_shell.stdout != fish_path
+      become: yes
+      ansible.builtin.command:
+        cmd: usermod --shell {{ fish_path }} {{ ansible_env.USER }}
+
+    - name: Install Fisher - Package Manager for the Fish Shell
+      ansible.builtin.shell:
+        cmd: >
+          {{ fish_path }} -c
+          "curl -sL https://git.io/fisher
+          |
+          source
+          &&
+          fisher install jorgebucaran/fisher"
+        creates: ~/.config/fish/functions/fisher.fish
+
+    - name: Install Tide prompt
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: fisher install ilancosman/tide@v5
+        creates: ~/.config/fish/functions/tide.fish
+
+    - name: Configure Tide prompt
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: echo 1 1 3 2 2 1 2 2 y | tide configure >/dev/null
+      changed_when: no
+
+    - name: Install z directory jumper
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: fisher install jethrokuan/z
+        creates: ~/.config/fish/functions/__z.fish
