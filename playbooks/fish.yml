@@ -29,6 +29,12 @@
       ansible.builtin.command:
         cmd: usermod --shell {{ fish_path }} {{ ansible_env.USER }}
 
+    - name: Use Vi key bindings
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: fish_vi_key_bindings
+      changed_when: no
+
     - name: Install Fisher - Package Manager for the Fish Shell
       ansible.builtin.shell:
         cmd: >
