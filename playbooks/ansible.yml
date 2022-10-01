@@ -1,0 +1,17 @@
+---
+- name: Install and configure Ansible.
+  hosts: factory
+  vars:
+    fish_path: /usr/bin/fish
+  tasks:
+    - name: Add abbreviations for git.
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: abbr --add {{ item.word }} {{ item.expansion }}
+      loop:
+        - word: a
+          expansion: ansible
+        - word: ap
+          expansion: ansible-playbook
+        - word: agx
+          expansion: ansible-galaxy

@@ -2,7 +2,7 @@
 - name: Provision Wsler development environment
   hosts: factory
   tasks:
-    - name: Ensure packages are up-to-date.
+    - name: Ensure packages are up-to-date
       become: yes
       ansible.builtin.apt:
         update_cache: true
@@ -12,6 +12,8 @@
     - name: Enable noninteractive SSH password authentication
       become: yes
       ansible.builtin.apt:
-        package:
-          - sshpass
+        package: sshpass
         state: present
+
+- ansible.builtin.import_playbook: ./fish.yml
+- ansible.builtin.import_playbook: ./utils.yml

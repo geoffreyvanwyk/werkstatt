@@ -1,0 +1,65 @@
+---
+- name: Install utility commands.
+  hosts: factory
+
+  vars:
+    bash_path: /usr/bin/bash
+    fish_path: /usr/bin/fish
+
+  tasks:
+    - name: Install z directory jumper
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd:  fisher install jethrokuan/z
+        creates: ~/.config/fish/functions/__z.fish
+
+    # Dependency for fzf.fish
+    - name: Clone repository of Fuzzy Finder
+      ansible.builtin.git:
+        repo: https://github.com/junegunn/fzf.git
+        dest: ~/.fzf
+
+    # Dependency for fzf.fish
+    - name: Install Fuzzy Finder
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        chdir: ~/.fzf
+        cmd: echo y | ./install
+
+    # Dependency for fzf.fish
+    - name: Install fd - a superior find command
+      ansible.builtin.apt:
+        deb: https://github.com/sharkdp/fd/releases/download/v8.4.0/fd-musl_8.4.0_amd64.deb
+      become: yes
+
+    # Dependency for fzf.fish
+    - name: Install bat - a superior cat
+      ansible.builtin.apt:
+        deb: https://github.com/sharkdp/bat/releases/download/v0.22.1/bat-musl_0.22.1_amd64.deb
+      become: yes
+
+    - name: Install ef-fish-ient key bindings for Fuzzy Finder
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: fisher install PatrickF1/fzf.fish
+        creates: ~/.config/fish/functions/fzf.fish
+
+    - name: Install exa - a modern replacement for ls.
+      # Homepage: https://the.exa.website
+      ansible.builtin.apt:
+        package: exa
+      become: yes
+
+    - name: Add abbreviations for exa.
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: abbr --add {{ item.word }} {{ item.expansion }}
+      loop:
+        - word: l
+          expansion: exa --classify --grid
+        - word: la
+          expansion: exa --all
+        - word: ll
+          expansion: exa --all --classify --long
+        - word: lt
+          expansion: exa --all --long --tree
