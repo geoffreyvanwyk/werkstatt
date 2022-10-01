@@ -25,6 +25,7 @@
         executable: "{{ fish_path }}"
         chdir: ~/.fzf
         cmd: echo y | ./install
+        creates: ~/.fzf/bin/fzf
 
     # Dependency for fzf.fish
     - name: Install fd - a superior find command
@@ -42,7 +43,7 @@
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
         cmd: fisher install PatrickF1/fzf.fish
-        creates: ~/.config/fish/functions/fzf.fish
+        creates: ~/.config/fish/functions/_fzf_wrapper.fish
 
     - name: Install exa - a modern replacement for ls.
       # Homepage: https://the.exa.website
