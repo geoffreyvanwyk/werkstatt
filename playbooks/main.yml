@@ -17,3 +17,4 @@
 
 - ansible.builtin.import_playbook: ./fish.yml
 - ansible.builtin.import_playbook: ./utils.yml
+- ansible.builtin.import_playbook: ./python.yml

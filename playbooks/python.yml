@@ -1,0 +1,47 @@
+---
+- name: Install Python packages and virtual environments.
+  hosts: factory
+  tasks:
+    - name: Add aliases for Python.
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: alias --save {{ item.name }} '{{ item.definition }}'
+        creates: ~/.config/fish/functions/{{ item.name }}.fish
+      loop:
+        - name: py
+          definition: python
+
+    - name: Create symbolic link for python command.
+      ansible.builtin.file:
+        src: /usr/bin/python3
+        dest: /usr/bin/python
+        state: link
+      become: yes
+
+    - name: Install pip - Python package manager.
+      ansible.builtin.import_role:
+        name: geerlingguy.pip
+      become: yes
+
+    - name: Download VirtualFish - Python virtual environment manager for the Fish Shell.
+      ansible.builtin.pip:
+        name: virtualfish
+
+    - name: Install VirtualFish.
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: mkdir ~/.virtualenvs && vf install
+        creates: ~/.virtualenvs
+
+    - name: Create main virtual environment.
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: vf new main
+        creates: ~/.virtualenvs/main
+
+    - name: Activate main virtual environment when logging in.
+      ansible.builtin.lineinfile:
+        path: ~/.config/fish/config.fish
+        line: vf activate main
+        state: present
+        create: yes
