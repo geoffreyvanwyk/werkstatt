@@ -4,7 +4,7 @@
   vars:
     fish_path: /usr/bin/fish
   tasks:
-    - name: Add abbreviations for git.
+    - name: Add abbreviations for Ansible.
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
         cmd: abbr --add {{ item.word }} {{ item.expansion }}
