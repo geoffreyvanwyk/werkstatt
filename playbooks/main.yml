@@ -15,6 +15,11 @@
         package: sshpass
         state: present
 
-- ansible.builtin.import_playbook: ./fish.yml
-- ansible.builtin.import_playbook: ./utils.yml
-- ansible.builtin.import_playbook: ./python.yml
+- name: Install the Friendly Interactive Shell
+  ansible.builtin.import_playbook: ./fish.yml
+- name: Install utility commands.
+  ansible.builtin.import_playbook: ./utils.yml
+- name: Install Python packages and virtual environments.
+  ansible.builtin.import_playbook: ./python.yml
+- name: Install and configure Ansible.
+  ansible.builtin.import_playbook: ./ansible.yml

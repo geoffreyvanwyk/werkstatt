@@ -15,3 +15,10 @@
           expansion: ansible-playbook
         - word: agx
           expansion: ansible-galaxy
+
+    - name: Install Ansible.
+      vars:
+        ansible_install_method: pip
+      ansible.builtin.import_role:
+        name: geerlingguy.ansible
+      become: yes
