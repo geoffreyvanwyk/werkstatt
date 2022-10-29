@@ -1,20 +1,33 @@
 ---
 - name: Install and configure Ansible.
   hosts: factory
+
   vars:
     fish_path: /usr/bin/fish
+
+    fish_ansible_abbreviations:
+      a: ansible
+      ap: ansible-playbook
+      agx: ansible-galaxy
+
   tasks:
-    - name: Add abbreviations for Ansible.
+    - name: Collect existing abbreviations in a list.
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
-        cmd: abbr --add {{ item.word }} {{ item.expansion }}
-      loop:
-        - word: a
-          expansion: ansible
-        - word: ap
-          expansion: ansible-playbook
-        - word: agx
-          expansion: ansible-galaxy
+        cmd: abbr | cut -d' ' -f5
+      register: fish_abbreviations
+      changed_when: no
+
+    - name: Are some abbreviations not yet added?
+      ansible.builtin.set_fact:
+        fish_missing_abbreviations: "{{ fish_ansible_abbreviations.keys() | list | difference(fish_abbreviations.stdout.splitlines()) }}"
+
+    - name: Add abbreviations for Ansible.
+      when: fish_missing_abbreviations
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: abbr --add {{ item.key }} {{ item.value }}
+      loop: "{{ fish_ansible_abbreviations | dict2items | selectattr('key', 'in', fish_missing_abbreviations) }}"
 
     - name: Install Ansible.
       vars:
