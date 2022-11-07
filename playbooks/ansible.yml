@@ -9,16 +9,17 @@
       a: ansible
       ap: ansible-playbook
       agx: ansible-galaxy
+      mol: molecule
 
   tasks:
     - name: Collect existing abbreviations in a list.
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
-        cmd: abbr | cut -d' ' -f5
+        cmd: abbr | cut --delimeter=' ' --fields=5
       register: fish_abbreviations
       changed_when: no
 
-    - name: Are some abbreviations not yet added?
+    - name: Find missing abbreviations.
       ansible.builtin.set_fact:
         fish_missing_abbreviations: "{{ fish_ansible_abbreviations.keys() | list | difference(fish_abbreviations.stdout.splitlines()) }}"
 
@@ -26,12 +27,17 @@
       when: fish_missing_abbreviations
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
-        cmd: abbr --add {{ item.key }} {{ item.value }}
+        cmd: abbr --add {{ item.key }} '{{ item.value }}'
       loop: "{{ fish_ansible_abbreviations | dict2items | selectattr('key', 'in', fish_missing_abbreviations) }}"
 
-    - name: Install Ansible.
-      vars:
-        ansible_install_method: pip
-      ansible.builtin.import_role:
-        name: geerlingguy.ansible
-      become: yes
+    - name: Install Ansible packages into the main Python virtual environment.
+      ansible.builtin.shell:
+        executable: "{{ fish_path }}"
+        cmd: |
+          vf activate main
+          pip install {{ item }}
+        creates: ~/.virtualenvs/main/bin/{{ item }}
+      loop:
+        - ansible
+        - ansible-lint
+        - molecule
