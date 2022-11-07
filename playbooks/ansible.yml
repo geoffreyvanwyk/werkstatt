@@ -23,7 +23,7 @@
     - name: Collect existing abbreviations in a list.
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
-        cmd: abbr | cut --delimeter=' ' --fields=5
+        cmd: abbr | cut --delimiter=' ' --fields=5
       register: fish_abbreviations
       changed_when: no
 
