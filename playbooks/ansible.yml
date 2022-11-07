@@ -12,6 +12,14 @@
       mol: molecule
 
   tasks:
+    # This is necessary when connecting to the managed node with an SSH password
+    # that is used from the inventory file.
+    - name: Enable noninteractive SSH password authentication
+      become: yes
+      ansible.builtin.apt:
+        package: sshpass
+        state: present
+
     - name: Collect existing abbreviations in a list.
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
