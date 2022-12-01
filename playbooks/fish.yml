@@ -20,7 +20,7 @@
 
     - name: Is Fish the default shell?
       ansible.builtin.shell:
-        cmd: 'cat /etc/passwd | grep $(whoami) | cut -d: -f7'
+        cmd: 'cat /etc/passwd | grep $(whoami) | cut --delimiter=":" --fields=7'
       register: current_shell
       changed_when: no
 
