@@ -2,8 +2,8 @@
     "yaml.schemas": {
         "https://raw.githubusercontent.com/ansible/schemas/main/f/ansible-requirements.json": "file://../requirements.yml"
     },
-    "ansible.python.interpreterPath": "~/.virtualenvs/wsler/bin/python",
-    "ansible.python.activationScript": "~/.virtualenvs/wsler/bin/activate",
+    "ansible.python.interpreterPath": "~/.virtualenvs/werkstatt/bin/python",
+    "ansible.python.activationScript": "~/.virtualenvs/werkstatt/bin/activate",
     "python.venvFolders": [
         "~/.virtualenvs"
     ]

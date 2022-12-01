@@ -1,5 +1,5 @@
 ---
-- name: Provision Wsler development environment
+- name: Provision Werkstatt development environment
   hosts: factory
   tasks:
     - name: Ensure packages are up-to-date

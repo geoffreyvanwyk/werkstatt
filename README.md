@@ -1,6 +1,6 @@
-# Wsler
-> Pronounced "whistler", an Ansible project for setting up a development
-> environment inside Windows Subsystem for Linux (WSL) based on Ubuntu 20.04.
+# Werkstatt
+> An instant software development environment in Ubuntu for Windows
+> Subsystem for Linux, built with Ansible.
 
 ## License
 Copyright &copy; 2022 Geoffrey van Wyk (https://geoffreyvanwyk.dev)
