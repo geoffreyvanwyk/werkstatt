@@ -61,7 +61,7 @@
         cmd: echo 1 1 3 2 2 1 2 2 y | tide configure >/dev/null
       changed_when: no
 
-    - name: Add abbreviations.
+    - name: Add abbreviations
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
         cmd: abbr --add {{ item.word }} {{ item.expansion }}
@@ -74,7 +74,7 @@
           expansion: sudo service
       changed_when: no
 
-    - name: Add aliases.
+    - name: Add aliases
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
         cmd: alias --save {{ item.name }} '{{ item.definition }}'
@@ -83,7 +83,7 @@
         - name: history
           definition: 'history --show-time="%F %T "'
 
-    - name: Add local binary directory to $PATH.
+    - name: Add local binary directory to $PATH
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
         cmd: set -U fish_user_paths ~/.local/bin $fish_user_paths
