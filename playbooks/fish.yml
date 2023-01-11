@@ -77,7 +77,7 @@
       ansible.builtin.include_tasks: ../tasks/fish_add_aliases.yml
 
     - name: Add local binary directory to $PATH
-      ansible.builtin.shell:
-        executable: "{{ fish_path }}"
-        cmd: set -U fish_user_paths ~/.local/bin $fish_user_paths
-      changed_when: no
+      vars:
+        fish_directories_to_add:
+          - /home/{{ ansible_user }}/.local/bin
+      ansible.builtin.include_tasks: ../tasks/fish_add_directories_to_path.yml

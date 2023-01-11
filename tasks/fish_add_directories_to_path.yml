@@ -1,0 +1,12 @@
+---
+- name: Collect existing directories in a list
+  ansible.builtin.shell:
+    cmd: fish -c 'echo $PATH'
+  register: fish_directories_in_path
+  changed_when: no
+
+- name: Add local binary directory to $PATH
+  ansible.builtin.shell:
+    cmd: fish -c 'set -U fish_user_paths {{ item }} $fish_user_paths'
+  loop: "{{ fish_directories_to_add }}"
+  changed_when: item not in fish_directories_in_path.stdout.split(' ')
