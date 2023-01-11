@@ -69,14 +69,12 @@
           s: sudo service
       ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
 
-    - name: Add aliases
-      ansible.builtin.shell:
-        executable: "{{ fish_path }}"
-        cmd: alias --save {{ item.name }} '{{ item.definition }}'
-        creates: ~/.config/fish/functions/{{ item.name }}.fish
-      loop:
+    - name: Add general aliases
+      vars:
+        fish_aliases_to_add:
         - name: history
           definition: 'history --show-time="%F %T "'
+      ansible.builtin.include_tasks: ../tasks/fish_add_aliases.yml
 
     - name: Add local binary directory to $PATH
       ansible.builtin.shell:

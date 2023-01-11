@@ -1,0 +1,7 @@
+---
+- name: Add aliases
+  ansible.builtin.shell:
+    executable: "{{ fish_path }}"
+    cmd: alias --save {{ item.name }} '{{ item.definition }}'
+    creates: ~/.config/fish/functions/{{ item.name }}.fish
+  loop: "{{ fish_aliases_to_add }}"
