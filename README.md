@@ -2,6 +2,14 @@
 > An instant software development environment in Ubuntu for Windows
 > Subsystem for Linux, built with Ansible.
 
+## Unix User
+The credentials of the default user is:
+
+* **username:** werker
+* **password:** nullfehler
+
+This user has root privilege via the sudo command.
+
 ## License
 Copyright &copy; 2022 Geoffrey van Wyk (https://geoffreyvanwyk.dev)
 
