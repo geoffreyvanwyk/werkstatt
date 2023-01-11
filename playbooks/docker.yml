@@ -1,0 +1,10 @@
+---
+- name: Install Docker containerization system
+  hosts: factory
+  vars:
+    docker_service_manage: no
+    docker_users:
+      - werker
+  roles:
+    - name: geerlingguy.docker
+      become: yes
