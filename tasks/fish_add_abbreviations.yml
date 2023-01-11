@@ -1,0 +1,20 @@
+---
+- name: Collect existing abbreviations in a list
+  ansible.builtin.shell:
+    executable: "{{ fish_path }}"
+    cmd: abbr | cut --delimiter=' ' --fields=5
+  register: fish_abbreviations
+  changed_when: no
+
+- name: Add abbreviations for Ansible.
+  vars:
+    fish_missing_abbreviations: "{{ fish_abbreviations_to_add.keys()
+      | list
+      | difference(fish_abbreviations.stdout.splitlines()) }}"
+  ansible.builtin.shell:
+    executable: "{{ fish_path }}"
+    cmd: abbr --add {{ item.key }} '{{ item.value }}'
+  loop: "{{ fish_abbreviations_to_add
+    | dict2items
+    | selectattr('key', 'in', fish_missing_abbreviations) }}"
+  changed_when: fish_missing_abbreviations

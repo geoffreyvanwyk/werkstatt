@@ -2,15 +2,6 @@
 - name: Install and configure Ansible.
   hosts: factory
 
-  vars:
-    fish_path: /usr/bin/fish
-
-    fish_ansible_abbreviations:
-      a: ansible
-      ap: ansible-playbook
-      agx: ansible-galaxy
-      mol: molecule
-
   tasks:
     # This is necessary when connecting to the managed node with an SSH password
     # that is used from the inventory file.
@@ -20,23 +11,14 @@
         package: sshpass
         state: present
 
-    - name: Collect existing abbreviations in a list.
-      ansible.builtin.shell:
-        executable: "{{ fish_path }}"
-        cmd: abbr | cut --delimiter=' ' --fields=5
-      register: fish_abbreviations
-      changed_when: no
-
-    - name: Find missing abbreviations.
-      ansible.builtin.set_fact:
-        fish_missing_abbreviations: "{{ fish_ansible_abbreviations.keys() | list | difference(fish_abbreviations.stdout.splitlines()) }}"
-
-    - name: Add abbreviations for Ansible.
-      when: fish_missing_abbreviations
-      ansible.builtin.shell:
-        executable: "{{ fish_path }}"
-        cmd: abbr --add {{ item.key }} '{{ item.value }}'
-      loop: "{{ fish_ansible_abbreviations | dict2items | selectattr('key', 'in', fish_missing_abbreviations) }}"
+    - name: Add abbreviations for Ansible commands
+      vars:
+        fish_abbreviations_to_add:
+          a: ansible
+          ap: ansible-playbook
+          agx: ansible-galaxy
+          mol: molecule
+      ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
 
     - name: Install Ansible packages into the main Python virtual environment.
       ansible.builtin.shell:

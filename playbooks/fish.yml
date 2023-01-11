@@ -61,18 +61,13 @@
         cmd: echo 1 1 3 2 2 1 2 2 y | tide configure >/dev/null
       changed_when: no
 
-    - name: Add abbreviations
-      ansible.builtin.shell:
-        executable: "{{ fish_path }}"
-        cmd: abbr --add {{ item.word }} {{ item.expansion }}
-      loop:
-        - word: apt
-          expansion: sudo apt
-        - word: apti
-          expansion: sudo apt install
-        - word: s
-          expansion: sudo service
-      changed_when: no
+    - name: Add general abbreviations
+      vars:
+        fish_abbreviations_to_add:
+          apt: sudo apt
+          apti: sudo apti
+          s: sudo service
+      ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
 
     - name: Add aliases
       ansible.builtin.shell:
