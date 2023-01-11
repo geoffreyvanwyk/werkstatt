@@ -9,11 +9,13 @@
         cache_valid_time: "{{ 3600 * 24 * 7 }}" # 7 days
         upgrade: true
 
-- name: Install the Friendly Interactive Shell
+- name: Install Friendly Interactive Shell
   ansible.builtin.import_playbook: ./fish.yml
-- name: Install utility commands.
+- name: Install utility commands
   ansible.builtin.import_playbook: ./utils.yml
-- name: Install Python packages and virtual environments.
+- name: Install Python packages and virtual environments
   ansible.builtin.import_playbook: ./python.yml
-- name: Install and configure Ansible.
+- name: Install and configure Ansible
   ansible.builtin.import_playbook: ./ansible.yml
+- name: Install Docker containerization system
+  ansible.builtin.import_playbook: ./docker.yml

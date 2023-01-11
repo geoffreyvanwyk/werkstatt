@@ -1,5 +1,5 @@
 ---
-- name: Friendly Interactive Shell
+- name: Install Friendly Interactive Shell
   hosts: factory
 
   tasks:
