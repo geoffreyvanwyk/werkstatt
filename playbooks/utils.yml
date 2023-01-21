@@ -6,7 +6,7 @@
     - name: Install z directory jumper
       ansible.builtin.shell:
         executable: "{{ fish_path }}"
-        cmd:  fisher install jethrokuan/z
+        cmd: fisher install jethrokuan/z
         creates: ~/.config/fish/functions/__z.fish
 
     # Dependency for fzf.fish
