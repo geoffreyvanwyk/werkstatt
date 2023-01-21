@@ -2,10 +2,6 @@
 - name: Install utility commands.
   hosts: factory
 
-  vars:
-    bash_path: /usr/bin/bash
-    fish_path: /usr/bin/fish
-
   tasks:
     - name: Install z directory jumper
       ansible.builtin.shell:
