@@ -13,6 +13,8 @@
   ansible.builtin.import_playbook: ./fish.yml
 - name: Install utility commands
   ansible.builtin.import_playbook: ./utils.yml
+- name: Configure Git source code management
+  ansible.builtin.import_playbook: ./git.yml
 - name: Install Python packages and virtual environments
   ansible.builtin.import_playbook: ./python.yml
 - name: Install and configure Ansible
