@@ -49,15 +49,14 @@
       become: yes
 
     - name: Add abbreviations for exa.
-      ansible.builtin.shell:
-        executable: "{{ fish_path }}"
-        cmd: abbr --add {{ item.word }} {{ item.expansion }}
-      loop:
-        - word: l
-          expansion: exa --classify --grid
-        - word: la
-          expansion: exa --all
-        - word: ll
-          expansion: exa --all --classify --long
-        - word: lt
-          expansion: exa --all --long --tree
+      vars:
+        fish_abbreviations_to_add:
+          - word: l
+            expansion: exa --classify --grid
+          - word: la
+            expansion: exa --all
+          - word: ll
+            expansion: exa --all --classify --long
+          - word: lt
+            expansion: exa --all --long --tree
+      ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
