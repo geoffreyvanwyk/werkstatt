@@ -1,28 +1,16 @@
 ---
-- name: Configure git source code management.
+- name: Configure Git source code management
   hosts: factory
-  vars:
-    fish_path: /usr/bin/fish
   tasks:
-    - name: Add abbreviations for git.
-      ansible.builtin.shell:
-        executable: "{{ fish_path }}"
-        cmd: abbr --add {{ item.word }} {{ item.expansion }}
-      loop:
-        - word: g
-          expansion: git
-        - word: gb
-          expansion: git branch
-        - word: gc
-          expansion: git commit
-        - word: gco
-          expansion: git checkout
-        - word: gp
-          expansion: git push
-        - word: gpl
-          expansion: git pull
-        - word: gr
-          expansion: git remote
-        - word: gs
-          expansion: git status
-      changed_when: no
+    - name: Add abbreviations for Git
+      vars:
+        fish_abbreviations_to_add:
+          g: git
+          gb: git branch
+          gc: git commit
+          gco: egit checkout
+          gp: git push
+          gpl: egit pull
+          gr: git remote
+          gs: git status
+      ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
