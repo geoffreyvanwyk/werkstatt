@@ -1,10 +1,22 @@
 ---
 - name: Install Docker containerization system
   hosts: factory
+
   vars:
+    # no, because systemd is not available in WSL (Windows 10).
     docker_service_manage: no
+    # Users added to the docker group.
     docker_users:
       - werker
+
   roles:
     - name: geerlingguy.docker
       become: yes
+
+  tasks:
+    - name: Add abbreviations for Docker
+      vars:
+        fish_abbreviations_to_add:
+          d: docker
+          dx: docker exec -it
+      ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
