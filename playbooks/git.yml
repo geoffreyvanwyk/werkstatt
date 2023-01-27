@@ -8,9 +8,9 @@
           g: git
           gb: git branch
           gc: git commit
-          gco: egit checkout
+          gco: git checkout
           gp: git push
-          gpl: egit pull
+          gpl: git pull
           gr: git remote
           gs: git status
       ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
