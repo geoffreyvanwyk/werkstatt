@@ -37,6 +37,13 @@
       ansible.builtin.apt:
         deb: https://github.com/sharkdp/bat/releases/download/v0.22.1/bat-musl_0.22.1_amd64.deb
 
+    - name: Add abbreviations for bat
+      vars:
+        fish_abbreviations_to_add:
+          - word: cat
+            expansion: bat
+      ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
+
     - name: Install ef-fish-ient key bindings for Fuzzy Finder
       ansible.builtin.shell:
         executable: "{{ werkstatt_fish_path }}"
@@ -49,7 +56,7 @@
       ansible.builtin.apt:
         package: exa
 
-    - name: Add abbreviations for exa.
+    - name: Add abbreviations for exa
       vars:
         fish_abbreviations_to_add:
           - word: ls
