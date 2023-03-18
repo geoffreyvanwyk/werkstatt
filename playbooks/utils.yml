@@ -10,13 +10,14 @@
         creates: ~/.config/fish/functions/__z.fish
 
     # Dependency for fzf.fish
+    - name: Fuzzy Finder
+      block:
     - name: Clone repository of Fuzzy Finder
       ansible.builtin.git:
         repo: https://github.com/junegunn/fzf.git
         version: master
         dest: ~/.fzf
 
-    # Dependency for fzf.fish
     - name: Install Fuzzy Finder
       ansible.builtin.shell:
         executable: "{{ werkstatt_fish_path }}"
