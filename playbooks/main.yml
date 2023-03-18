@@ -1,6 +1,7 @@
 ---
 - name: Provision Werkstatt development environment
   hosts: factory
+
   tasks:
     - name: Ensure packages are up-to-date
       become: yes
