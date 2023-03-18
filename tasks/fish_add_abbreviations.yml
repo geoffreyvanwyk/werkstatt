@@ -1,7 +1,7 @@
 ---
 - name: Collect existing abbreviations in a list
   ansible.builtin.shell:
-    executable: "{{ fish_path }}"
+    executable: "{{ werkstatt_fish_path }}"
     cmd: abbr | cut --delimiter=' ' --fields=5
   register: fish_abbreviations
   changed_when: no
@@ -12,7 +12,7 @@
       | list
       | difference(fish_abbreviations.stdout.splitlines()) }}"
   ansible.builtin.shell:
-    executable: "{{ fish_path }}"
+    executable: "{{ werkstatt_fish_path }}"
     cmd: abbr --add {{ item.key }} '{{ item.value }}'
   # Variable fish_abbreviations_to_add must be a dictionary wherein the keys are
   # the words and the values are the expansions of those words.

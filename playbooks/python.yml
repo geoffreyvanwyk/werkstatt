@@ -28,7 +28,7 @@
 
         - name: Install VirtualFish
           ansible.builtin.shell:
-            executable: "{{ fish_path }}"
+            executable: "{{ werkstatt_fish_path }}"
             cmd: vf install
           register: python_install_virtualfish
           changed_when: "'VirtualFish is already installed!' not in python_install_virtualfish.stdout"
@@ -37,7 +37,7 @@
       block:
         - name: Create main virtual environment
           ansible.builtin.shell:
-            executable: "{{ fish_path }}"
+            executable: "{{ werkstatt_fish_path }}"
             cmd: vf new main
             creates: ~/.virtualenvs/main
 

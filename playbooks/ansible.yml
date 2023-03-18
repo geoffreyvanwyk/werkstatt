@@ -22,7 +22,7 @@
 
     - name: Install Ansible packages into the main Python virtual environment.
       ansible.builtin.shell:
-        executable: "{{ fish_path }}"
+        executable: "{{ werkstatt_fish_path }}"
         cmd: |
           vf activate main
           pip install {{ item }}

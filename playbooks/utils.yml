@@ -5,7 +5,7 @@
   tasks:
     - name: Install z directory jumper
       ansible.builtin.shell:
-        executable: "{{ fish_path }}"
+        executable: "{{ werkstatt_fish_path }}"
         cmd: fisher install jethrokuan/z
         creates: ~/.config/fish/functions/__z.fish
 
@@ -19,7 +19,7 @@
     # Dependency for fzf.fish
     - name: Install Fuzzy Finder
       ansible.builtin.shell:
-        executable: "{{ fish_path }}"
+        executable: "{{ werkstatt_fish_path }}"
         chdir: ~/.fzf
         cmd: echo y | ./install
         creates: ~/.fzf/bin/fzf
@@ -38,7 +38,7 @@
 
     - name: Install ef-fish-ient key bindings for Fuzzy Finder
       ansible.builtin.shell:
-        executable: "{{ fish_path }}"
+        executable: "{{ werkstatt_fish_path }}"
         cmd: fisher install PatrickF1/fzf.fish
         creates: ~/.config/fish/functions/_fzf_wrapper.fish
 
