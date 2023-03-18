@@ -1,5 +1,5 @@
 ---
-- name: Install and configure Ansible.
+- name: Install and configure Ansible
   hosts: factory
 
   tasks:
@@ -20,7 +20,7 @@
           mol: molecule
       ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
 
-    - name: Install Ansible packages into the main Python virtual environment.
+    - name: Install Ansible packages into the main Python virtual environment
       ansible.builtin.shell:
         executable: "{{ werkstatt_fish_path }}"
         cmd: |
