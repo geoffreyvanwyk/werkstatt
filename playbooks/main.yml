@@ -5,9 +5,9 @@
     - name: Ensure packages are up-to-date
       become: yes
       ansible.builtin.apt:
-        update_cache: true
+        update_cache: yes
         cache_valid_time: "{{ 3600 * 24 * 7 }}" # 7 days
-        upgrade: true
+        upgrade: yes
 
 - name: Install Friendly Interactive Shell
   ansible.builtin.import_playbook: ./fish.yml
