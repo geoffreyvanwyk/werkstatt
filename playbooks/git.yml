@@ -1,6 +1,7 @@
 ---
 - name: Configure Git source code management
   hosts: factory
+
   tasks:
     - name: Add abbreviations for Git
       vars:
