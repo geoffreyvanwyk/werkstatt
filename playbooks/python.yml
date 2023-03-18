@@ -1,6 +1,7 @@
 ---
-- name: Install Python packages and virtual environments.
+- name: Install Python packages and virtual environments
   hosts: factory
+
   tasks:
     - name: Create symbolic link for python command
       become: yes
@@ -9,10 +10,10 @@
         dest: /usr/bin/python
         state: link
 
-    - name: Install pip - Python package manager.
+    - name: Install pip - Python package manager
+      become: yes
       ansible.builtin.import_role:
         name: geerlingguy.pip
-      become: yes
 
     - name: VirtualFish - Python virtual environment manager for the Fish Shell
       block:
