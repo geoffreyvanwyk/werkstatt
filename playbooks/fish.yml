@@ -6,7 +6,7 @@
     - name: Install Fish
       become: yes
       block:
-        - name: Add Personal Package Archive
+        - name: Add Personal Package Archive for Fish
           ansible.builtin.apt_repository:
             repo: "ppa:fish-shell/release-3"
             state: present
@@ -16,7 +16,19 @@
             package: fish
             state: present
 
-    - name: Default shell
+    - name: Path to fish command
+      block:
+        - name: Get path to fish command
+          ansible.builtin.command:
+            cmd: which fish
+          register: werkstatt_fish_which_fish
+          changed_when: no
+
+        - name: Set path to fish command as fact
+          ansible.builtin.set_fact:
+            werkstatt_fish_path: werkstatt_fish_which_fish.stdout
+
+    - name: Set default shell
       block:
         - name: Is Fish the default shell?
           ansible.builtin.shell:
@@ -24,26 +36,14 @@
               cat /etc/passwd
               | grep $(whoami)
               | cut --delimiter=":" --fields=7
-          register: fish_find_current_shell
+          register: werkstatt_find_current_shell
           changed_when: no
 
         - name: Make Fish the default shell
-          when: fish_find_current_shell.stdout != fish_path
+          when: werkstatt_find_current_shell.stdout != werkstatt_fish_path
           become: yes
           ansible.builtin.command:
-            cmd: usermod --shell {{ fish_path }} {{ ansible_user }}
-
-    - name: Path to fish command
-      block:
-        - name: Get path to fish command
-          ansible.builtin.command:
-            cmd: which fish
-          register: fish_which_fish
-          changed_when: no
-
-        - name: Set path to fish command as fact
-          ansible.builtin.set_fact:
-            fish_path: fish_which_fish.stdout
+            cmd: usermod --shell {{ werkstatt_fish_path }} {{ ansible_user }}
 
     - name: Use Vi key bindings
       ansible.builtin.lineinfile:
@@ -59,31 +59,31 @@
           ansible.builtin.uri:
             url: https://git.io/fisher
             follow_redirects: yes
-          register: fish_download_fisher_installer
+          register: werkstatt_fish_download_fisher_installer
 
         - name: Set Fisher install script as fact
           ansible.builtin.set_fact:
-            fish_fisher_install_script: fish_download_fisher_installer.content
+            werkstatt_fish_fisher_install_script: werkstatt_fish_download_fisher_installer.content
 
         - name: Install Fisher
           ansible.builtin.shell:
-            executable: "{{ fish_path }}"
+            executable: "{{ werkstatt_fish_path }}"
             cmd: >
-              source {{ fish_fisher_install_script }}
+              source {{ werkstatt_fish_fisher_install_script }}
               &&
               fisher install jorgebucaran/fisher
             creates: ~/.config/fish/functions/fisher.fish
 
     - name: Install Tide prompt
       ansible.builtin.shell:
-        executable: "{{ fish_path }}"
+        executable: "{{ werkstatt_fish_path }}"
         cmd: fisher install ilancosman/tide@v5
         creates: ~/.config/fish/functions/tide.fish
 
     - name: Configure Tide prompt
       block:
         - name: Has Tide prompt been configured yet?
-      ansible.builtin.shell:
+          ansible.builtin.shell:
             executable: "{{ werkstatt_fish_path }}"
             cmd: set | grep -P ^tide_ | wc -l
           register: werkstatt_fish_tide_count_variables
@@ -93,7 +93,7 @@
           when: werkstatt_fish_tide_count_variables.stdout == '0'
           ansible.builtin.shell:
             executable: "{{ werkstatt_fish_path }}"
-        cmd: echo 1 1 3 2 2 1 2 2 y | tide configure >/dev/null
+            cmd: echo 1 1 3 2 2 1 2 2 y | tide configure >/dev/null
 
     - name: Add general abbreviations
       vars:
