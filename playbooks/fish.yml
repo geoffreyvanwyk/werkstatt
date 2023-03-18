@@ -81,10 +81,19 @@
         creates: ~/.config/fish/functions/tide.fish
 
     - name: Configure Tide prompt
+      block:
+        - name: Has Tide prompt been configured yet?
       ansible.builtin.shell:
-        executable: "{{ fish_path }}"
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: set | grep -P ^tide_ | wc -l
+          register: werkstatt_fish_tide_count_variables
+          changed_when: no
+
+        - name: Configure Tide prompt
+          when: werkstatt_fish_tide_count_variables.stdout == '0'
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
         cmd: echo 1 1 3 2 2 1 2 2 y | tide configure >/dev/null
-      changed_when: no
 
     - name: Add general abbreviations
       vars:
