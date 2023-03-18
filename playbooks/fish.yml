@@ -90,7 +90,9 @@
       vars:
         fish_abbreviations_to_add:
           apt: sudo apt
-          apti: sudo apti
+          apti: sudo apt install
+          aptu: sudo apt update
+          aptug: sudo apt upgrade
           s: sudo service
       ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
 
