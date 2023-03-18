@@ -52,6 +52,8 @@
     - name: Add abbreviations for exa.
       vars:
         fish_abbreviations_to_add:
+          - word: ls
+            expansion: exa
           - word: l
             expansion: exa --classify --grid
           - word: la
