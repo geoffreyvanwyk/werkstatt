@@ -2,9 +2,9 @@
     "yaml.schemas": {
         "https://raw.githubusercontent.com/ansible/schemas/main/f/ansible-requirements.json": "file://../requirements.yml"
     },
-    "ansible.python.interpreterPath": "~/.virtualenvs/werkstatt/bin/python",
-    "ansible.python.activationScript": "~/.virtualenvs/werkstatt/bin/activate",
-    "ansible.validation.lint.path": "~/.virtualenvs/werkstatt/bin/ansible-lint",
+    "ansible.python.interpreterPath": "~/.virtualenvs/main/bin/python",
+    "ansible.python.activationScript": "~/.virtualenvs/main/bin/activate",
+    "ansible.validation.lint.path": "~/.virtualenvs/main/bin/ansible-lint",
     "python.venvFolders": [
         "~/.virtualenvs"
     ]
