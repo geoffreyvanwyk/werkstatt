@@ -7,5 +7,11 @@
     "ansible.validation.lint.path": "~/.virtualenvs/main/bin/ansible-lint",
     "python.venvFolders": [
         "~/.virtualenvs"
-    ]
+    ],
+    "files.associations": {
+        "*.yml": "ansible",
+        "*.yaml": "ansible",
+        ".ansible-lint": "yaml"
+    },
+    "files.trimTrailingWhitespace": true
 }
