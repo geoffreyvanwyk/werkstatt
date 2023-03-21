@@ -6,7 +6,7 @@
   register: fish_abbreviations
   changed_when: no
 
-- name: Add abbreviations for Ansible.
+- name: Add abbreviations
   vars:
     fish_missing_abbreviations: "{{ fish_abbreviations_to_add.keys()
       | list
