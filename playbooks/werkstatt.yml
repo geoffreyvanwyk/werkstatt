@@ -1,0 +1,22 @@
+---
+- name: Set up Werkstatt project
+  hosts: factory
+
+  tasks:
+    - name: Create parent directory for source code
+      ansible.builtin.file:
+        path: ~/Sources
+        mode: u=rwX,g=rwX,o=rX
+        state: directory
+
+    - name: Clone repository from GitHub
+      ansible.builtin.git:
+        repo: https://github.com/geoffreyvanwyk/Werkstatt
+        dest: ~/Sources/Werkstatt
+        version: master
+        update: yes
+
+    - name: Install dependencies
+      community.general.ansible_galaxy_install:
+        type: both
+        requirements_file: ~/Sources/Werkstatt/requirements.yml

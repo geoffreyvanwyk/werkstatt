@@ -27,3 +27,6 @@
 
 - name: Install Docker containerization system
   ansible.builtin.import_playbook: ./docker.yml
+
+- name: Set up Werkstatt project
+  ansible.builtin.import_playbook: ./werkstatt.yml
