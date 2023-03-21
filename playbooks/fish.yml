@@ -26,7 +26,7 @@
 
         - name: Set path to fish command as fact
           ansible.builtin.set_fact:
-            werkstatt_fish_path: werkstatt_fish_which_fish.stdout
+            werkstatt_fish_path: "{{ werkstatt_fish_which_fish.stdout }}"
 
     - name: Set default shell
       block:
@@ -59,19 +59,22 @@
           ansible.builtin.uri:
             url: https://git.io/fisher
             follow_redirects: yes
+            return_content: yes
           register: werkstatt_fish_download_fisher_installer
 
         - name: Set Fisher install script as fact
           ansible.builtin.set_fact:
-            werkstatt_fish_fisher_install_script: werkstatt_fish_download_fisher_installer.content
+            werkstatt_fish_fisher_install_script: "{{ werkstatt_fish_download_fisher_installer.content }}"
 
         - name: Install Fisher
           ansible.builtin.shell:
-            executable: "{{ werkstatt_fish_path }}"
             cmd: >
-              source {{ werkstatt_fish_fisher_install_script }}
+              {{ werkstatt_fish_path }} -c
+              "curl -sL https://git.io/fisher
+              |
+              source
               &&
-              fisher install jorgebucaran/fisher
+              fisher install jorgebucaran/fisher"
             creates: ~/.config/fish/functions/fisher.fish
 
     - name: Install Tide prompt
