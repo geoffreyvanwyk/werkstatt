@@ -1,6 +1,6 @@
 ---
 - name: Install Friendly Interactive Shell
-  hosts: factory
+  hosts: all
 
   tasks:
     - name: Install Fish

@@ -1,6 +1,6 @@
 ---
 - name: Install Python packages and virtual environments
-  hosts: factory
+  hosts: all
 
   tasks:
     - name: Create symbolic link for python command

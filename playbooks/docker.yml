@@ -1,6 +1,6 @@
 ---
 - name: Install Docker containerization system
-  hosts: factory
+  hosts: all
 
   vars:
     # no, because systemd is not available in WSL (Windows 10).

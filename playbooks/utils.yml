@@ -1,6 +1,6 @@
 ---
 - name: Install utility commands
-  hosts: factory
+  hosts: all
 
   tasks:
     - name: Install z directory jumper

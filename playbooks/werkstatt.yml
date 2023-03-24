@@ -1,6 +1,6 @@
 ---
 - name: Set up Werkstatt project
-  hosts: factory
+  hosts: all
 
   tasks:
     - name: Create parent directory for source code

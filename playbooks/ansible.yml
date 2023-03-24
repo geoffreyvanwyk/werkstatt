@@ -1,6 +1,6 @@
 ---
 - name: Install and configure Ansible
-  hosts: factory
+  hosts: all
 
   tasks:
     # This is necessary when connecting to the managed node with an SSH password
