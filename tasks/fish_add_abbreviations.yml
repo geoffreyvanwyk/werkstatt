@@ -1,22 +1,14 @@
 ---
-- name: Collect existing abbreviations in a list
-  ansible.builtin.shell:
-    executable: "{{ werkstatt_fish_path }}"
-    cmd: abbr | cut --delimiter=' ' --fields=5
-  register: fish_abbreviations
-  changed_when: no
+- name: Create Fish configuration snippets directory
+  ansible.builtin.file:
+    path: ~/.config/fish/conf.d
+    state: directory
+    mode: u=rwX,g=rX,o=rX
 
 - name: Add abbreviations
-  vars:
-    fish_missing_abbreviations: "{{ fish_abbreviations_to_add.keys()
-      | list
-      | difference(fish_abbreviations.stdout.splitlines()) }}"
-  ansible.builtin.shell:
-    executable: "{{ werkstatt_fish_path }}"
-    cmd: abbr --add {{ item.key }} '{{ item.value }}'
-  # Variable fish_abbreviations_to_add must be a dictionary wherein the keys are
-  # the words and the values are the expansions of those words.
-  loop: "{{ fish_abbreviations_to_add
-    | dict2items
-    | selectattr('key', 'in', fish_missing_abbreviations) }}"
-  changed_when: fish_missing_abbreviations
+  loop: "{{ fish_abbreviations_to_add | dict2items }}"
+  ansible.builtin.lineinfile:
+    path: ~/.config/fish/conf.d/werkstatt_abbreviations.fish
+    line: abbr --add {{ item.key }} '{{ item.value }}'
+    create: yes
+    mode: u=rw,g=r,o=r
