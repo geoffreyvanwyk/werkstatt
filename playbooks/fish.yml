@@ -55,18 +55,14 @@
 
     - name: Fisher - Package Manager for the Fish Shell
       block:
-        - name: Download Fisher installer
-          ansible.builtin.uri:
-            url: https://git.io/fisher
-            follow_redirects: yes
-            return_content: yes
-          register: werkstatt_fish_download_fisher_installer
-
-        - name: Set Fisher install script as fact
-          ansible.builtin.set_fact:
-            werkstatt_fish_fisher_install_script: "{{ werkstatt_fish_download_fisher_installer.content }}"
+        - name: Get status of Fisher function
+          ansible.builtin.stat:
+            path: ~/.config/fish/functions/fisher.fish
+          register: werkstatt_fisher_function
+          changed_when: no
 
         - name: Install Fisher
+          when: not werkstatt_fisher_function.stat.exists
           ansible.builtin.shell:
             cmd: >
               {{ werkstatt_fish_path }} -c
