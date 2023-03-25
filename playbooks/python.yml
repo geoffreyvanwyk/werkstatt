@@ -48,7 +48,7 @@
             line: vf activate main
             state: present
             create: yes
-            mode: 0664
+            mode: u=rw,g=r,o=r
 
     - name: Add aliases for Python
       vars:
