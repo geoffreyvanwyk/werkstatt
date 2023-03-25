@@ -16,6 +16,12 @@
         version: master
         update: yes
 
+    - name: Generate locale required by ansible
+      become: yes
+      community.general.locale_gen:
+        name: "en_US.UTF-8"
+        state: present
+
     - name: Install dependencies
       community.general.ansible_galaxy_install:
         type: both
