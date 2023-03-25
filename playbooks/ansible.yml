@@ -30,5 +30,5 @@
       loop:
         - ansible
         - ansible-lint
-        - docker
-        - molecule[docker]
+        - molecule
+        - molecule-plugins[docker]
