@@ -2,16 +2,84 @@
 > An instant software development environment in Ubuntu for Windows
 > Subsystem for Linux, built with Ansible.
 
-## Unix User
-The credentials of the default user is:
+## Base Distribution
+Werkstatt is based on Ubuntu 22.04. The following sections describe how the base distribution was prepared before the playbooks were executed upon it.
+
+### Installation
+The base distribution **Ubuntu 22.04** was prepared by firstly installing the Windows Subsystem for Linux (WSL) by following the [official documentation](https://aka.ms/wsl).
+
+In Powershell, Ubuntu 22.04 was installed with the following command.
+
+```powershell
+wsl --install Ubuntu-22.04
+```
+
+When prompted for the Unix username and password, the following values were provided.
 
 * **username:** werker
 * **password:** nullfehler
 
-This user has root privilege via the sudo command.
+### Configuration
+To automatically login with the `werker` user when launching the distribution, add the following to the file `/etc/wsl.conf`. The file does not exist yet, so you have to create it.
+
+```ini
+[user]
+default=werker
+```
+
+To unclutter the executable `PATH` variable, add the following to `/etc/wsl.conf`.
+
+```ini
+[interop]
+appendWindowsPath=false
+```
+
+### SSH Connection
+To use another WSL distribution as a control node and the base distribution as the managed node, you have to install the OpenSSH server on the base distribution.
+
+```bash
+sudo apt update
+sudo apt install --yes openssh-server
+```
+
+Create SSH keys for the server.
+
+```bash
+sudo ssh-keygen -A
+```
+
+Edit the SSH server configuration in `/etc/ssh/sshd_config` to allow for password authentication by changing the line:
+
+```
+PasswordAuthentication no
+```
+
+To:
+
+```
+PasswordAuthentication yes
+```
+
+Prevent port conflicts by changing the port the SSH server listens on by changing the line in the same file:
+
+```ini
+#Port 22
+```
+
+To:
+
+```ini
+Port 2222
+```
+
+Start the server with:
+
+```bash
+sudo service ssh start
+```
 
 ## License
-Copyright &copy; 2022 Geoffrey van Wyk (https://geoffreyvanwyk.dev)
+Copyright &copy; 2023 Geoffrey van Wyk (https://geoffreyvanwyk.dev)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
