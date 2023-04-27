@@ -48,34 +48,34 @@ Create SSH keys for the server.
 sudo ssh-keygen -A
 ```
 
-Edit the SSH server configuration in `/etc/ssh/sshd_config` to allow for password authentication by changing the line:
+Edit the SSH server configuration in `/etc/ssh/sshd_config` to allow for password authentication by uncommenting the line:
 
 ```
-PasswordAuthentication no
+#PasswordAuthentication yes
+```
+
+Limit connections to the local computer by changing:
+
+```ini
+#ListenAddress 0.0.0.0
 ```
 
 To:
 
-```
-PasswordAuthentication yes
+```ini
+ListenAddress 127.0.0.1
 ```
 
-Prevent port conflicts by changing the port the SSH server listens on by changing the line in the same file:
+Prevent port conflicts by changing the port the SSH server listens on by uncommenting the line in the same file:
 
 ```ini
 #Port 22
 ```
 
-To:
-
-```ini
-Port 2222
-```
-
-Start the server with:
+Restart the server with:
 
 ```bash
-sudo service ssh start
+sudo service ssh restart
 ```
 
 ## License
