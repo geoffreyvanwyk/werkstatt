@@ -3,6 +3,9 @@
   hosts: all
 
   tasks:
+    - name: Set path to fish command as fact
+      ansible.builtin.include_tasks: ../tasks/fish_executable_path.yml
+
     - name: Create symbolic link for python command
       become: yes
       ansible.builtin.file:
@@ -25,7 +28,7 @@
           ansible.builtin.file:
             path: ~/.virtualenvs
             state: directory
-            mode: 0775
+            mode: u=rwX,g=rwX,o=rX
 
         - name: Install VirtualFish
           ansible.builtin.shell:
@@ -49,6 +52,16 @@
             state: present
             create: yes
             mode: u=rw,g=r,o=r
+
+        - name: Install useful global Python packages into main virtual environment
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: |
+              vf activate main
+              pip install {{ item }}
+            creates: ~/.virtualenvs/main/bin/{{ item }}
+          loop:
+            - httpie
 
     - name: Add aliases for Python
       vars:
