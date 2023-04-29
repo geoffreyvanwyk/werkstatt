@@ -1,4 +1,4 @@
 rules:
   truthy:
-    allowed-values: ["true", "false", "yes", "no"]
+    allowed-values: ["true", "false", "yes", "no", "always", "never"]
     check-keys: true
