@@ -42,16 +42,22 @@
           register: werkstatt_find_latest_node_version
           changed_when: no
 
-        - name: Set default Node version
+        - name: Set default Node version universally
           when: not werkstatt_isset_default_node_version
           ansible.builtin.shell:
             executable: "{{ werkstatt_fish_path }}"
             cmd: set --universal nvm_default_version {{ werkstatt_find_latest_node_version.stdout }}
           changed_when: yes
 
-        - name: Install default Node version
-          when: not werkstatt_isset_default_node_version
-          ansible.builtin.shell:
-            executable: "{{ werkstatt_fish_path }}"
-            cmd: nvm install $nvm_default_version
-          changed_when: yes
+    - name: Set default Node packages
+      ansible.builtin.shell:
+        executable: "{{ werkstatt_fish_path }}"
+        cmd: set --universal nvm_default_packages grunt tldr yarn
+      changed_when: yes
+
+    - name: Install default Node version
+      when: not werkstatt_isset_default_node_version
+      ansible.builtin.shell:
+        executable: "{{ werkstatt_fish_path }}"
+        cmd: nvm install $nvm_default_version
+      changed_when: yes
