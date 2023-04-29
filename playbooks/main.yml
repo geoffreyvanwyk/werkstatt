@@ -28,5 +28,8 @@
 - name: Install Docker containerization system
   ansible.builtin.import_playbook: ./docker.yml
 
+- name: Install JavaScript via Node.js and Node Version Manager
+  ansible.builtin.import_playbook: ./javascript.yml
+
 - name: Set up Werkstatt project
   ansible.builtin.import_playbook: ./werkstatt.yml
