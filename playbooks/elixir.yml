@@ -98,3 +98,20 @@
         cmd: mix local.hex --if-missing
       register: werkstatt_install_hex
       changed_when: not werkstatt_install_hex.stdout is regex('^$')
+
+    - name: Install Phoenix - Web Framework
+      block:
+        - name: Check if Phoenix is already installed
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: mix phx.new --help
+          register: werkstatt_check_phoenix_install
+          ignore_errors: yes
+          changed_when: no
+
+        - name: Install Phoenix
+          when: not werkstatt_check_phoenix_install.stdout is search('The task "phx.new" could not be found')
+          ansible.builtin.shell: # noqa risky-shell-pipe
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: echo "Y" | mix archive.install hex phx_new
+          changed_when: yes
