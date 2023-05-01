@@ -10,7 +10,7 @@
       - werker
 
   roles:
-    - name: geerlingguy.docker
+    - role: geerlingguy.docker
       become: yes
 
   tasks:

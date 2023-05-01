@@ -34,7 +34,7 @@
               werkstatt_query_default_node_version.rc == 0
               }}"
 
-        - name: Find latest Node version
+        - name: Find latest Node version # noqa risky-shell-pipe
           when: not werkstatt_isset_default_node_version
           ansible.builtin.shell:
             executable: "{{ werkstatt_fish_path }}"

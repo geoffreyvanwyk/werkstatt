@@ -1,8 +1,10 @@
 ---
 - name: Install utility commands
   hosts: all
-
   tasks:
+    - name: Set path to fish command as fact
+      ansible.builtin.include_tasks: ../tasks/fish_executable_path.yml
+
     - name: Install z directory jumper
       ansible.builtin.shell:
         executable: "{{ werkstatt_fish_path }}"
@@ -18,7 +20,7 @@
             version: master
             dest: ~/.fzf
 
-        - name: Install Fuzzy Finder
+        - name: Install Fuzzy Finder # noqa risky-shell-pipe
           ansible.builtin.shell:
             executable: "{{ werkstatt_fish_path }}"
             chdir: ~/.fzf
@@ -64,3 +66,11 @@
           ll: exa --all --classify --long
           lt: exa --all --long --tree
       ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
+
+    # Many use cases, e.g. used by Phoenix web framework for live reloading of
+    # web pages when code changes.
+    - name: Install Inotify Tools - A file watcher
+      become: yes
+      ansible.builtin.apt:
+        package:
+          - inotify-tools

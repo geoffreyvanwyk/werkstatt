@@ -33,7 +33,7 @@
         - name: Is Fish the default shell?
           ansible.builtin.shell:
             cmd: >
-              cat /etc/passwd
+              set -o pipefail && cat /etc/passwd
               | grep $(whoami)
               | cut --delimiter=":" --fields=7
           register: werkstatt_find_current_shell
@@ -44,6 +44,7 @@
           become: yes
           ansible.builtin.command:
             cmd: usermod --shell {{ werkstatt_fish_path }} {{ ansible_user }}
+          changed_when: yes
 
     - name: Use Vi key bindings
       ansible.builtin.lineinfile:
@@ -61,7 +62,7 @@
           register: werkstatt_fisher_function
           changed_when: no
 
-        - name: Install Fisher
+        - name: Install Fisher # noqa risky-shell-pipe
           when: not werkstatt_fisher_function.stat.exists
           ansible.builtin.shell:
             cmd: >
@@ -81,18 +82,19 @@
 
     - name: Configure Tide prompt
       block:
-        - name: Has Tide prompt been configured yet?
+        - name: Has Tide prompt been configured yet? # noqa risky-shell-pipe
           ansible.builtin.shell:
             executable: "{{ werkstatt_fish_path }}"
             cmd: set | grep -P ^tide_ | wc -l
           register: werkstatt_fish_tide_count_variables
           changed_when: no
 
-        - name: Configure Tide prompt
+        - name: Configure Tide prompt # noqa risky-shell-pipe
           when: werkstatt_fish_tide_count_variables.stdout == '0'
           ansible.builtin.shell:
             executable: "{{ werkstatt_fish_path }}"
             cmd: echo 1 1 2 2 2 1 2 2 y | tide configure >/dev/null
+          changed_when: yes
 
     - name: Add general abbreviations
       vars:

@@ -31,5 +31,8 @@
 - name: Install JavaScript via Node.js and Node Version Manager
   ansible.builtin.import_playbook: ./javascript.yml
 
+- name: Install Elixir programming language
+  ansible.builtin.import_playbook: ./elixir.yml
+
 - name: Set up Werkstatt project
   ansible.builtin.import_playbook: ./werkstatt.yml
