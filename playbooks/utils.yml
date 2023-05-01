@@ -18,7 +18,7 @@
             version: master
             dest: ~/.fzf
 
-        - name: Install Fuzzy Finder
+        - name: Install Fuzzy Finder # noqa risky-shell-pipe
           ansible.builtin.shell:
             executable: "{{ werkstatt_fish_path }}"
             chdir: ~/.fzf
