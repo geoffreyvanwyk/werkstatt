@@ -1,0 +1,100 @@
+---
+- name: Install Elixir programming language
+  hosts: all
+  tasks:
+    - name: Set path to fish command as fact
+      ansible.builtin.include_tasks: ../tasks/fish_executable_path.yml
+
+    - name: Install Asdf - Version manager for an assortment of programming languages
+      block:
+        - name: Install dependencies for Asdf
+          become: yes
+          ansible.builtin.apt:
+            package:
+              - curl
+              - git
+
+        - name: Download Asdf
+          ansible.builtin.git:
+            repo: https://github.com/asdf-vm/asdf.git
+            version: v0.11.3
+            dest: ~/.asdf
+            update: no
+
+        - name: Install Asdf
+          ansible.builtin.lineinfile:
+            path: /home/werker/.config/fish/config.fish
+            line: source ~/.asdf/asdf.fish
+
+        - name: Ensure Fish completions directory exists
+          ansible.builtin.file:
+            path: ~/.config/fish/completions
+            state: directory
+            mode: u=rwX,g=rwX,o=rX
+
+        - name: Install Asdf commandline completions
+          ansible.builtin.file:
+            state: link
+            src: ~/.asdf/completions/asdf.fish
+            dest: ~/.config/fish/completions/asdf.fish
+
+        - name: Initialize Asdf plugin repository
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: asdf plugin list all
+            creates: ~/.asdf/repository/plugins
+
+    - name: Install Erlang
+      become: yes
+      ansible.builtin.apt:
+        package:
+          - erlang
+
+    - name: Install Elixir
+      block:
+        - name: List installed Asdf plugins
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: asdf plugin list
+          register: werkstatt_list_asdf_install_plugins
+          changed_when: no
+
+        - name: Add Asdf plugin for Elixir
+          when: not 'elixir' in werkstatt_list_asdf_install_plugins.stdout
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: asdf plugin add elixir https://github.com/asdf-vm/asdf-elixir.git
+          changed_when: yes
+
+        - name: Install dependencies for Asdf plugin for Elixir
+          become: yes
+          ansible.builtin.apt:
+            package:
+              - unzip
+
+        - name: Install Elixir
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: asdf install elixir 1.14.4-otp-24
+            creates: ~/.asdf/installs/elixir/1.14.4-otp-24
+
+        - name: Check Elixir version
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: elixir --version
+          register: werkstatt_elixir_version
+          changed_when: no
+
+        - name: Set global Elixir version
+          when: werkstatt_elixir_version.stdout is search('No version is set for command elixir')
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: asdf global elixir 1.14.4-otp-24
+          changed_when: yes
+
+    - name: Install Hex - Package Manager
+      ansible.builtin.shell:
+        executable: "{{ werkstatt_fish_path }}"
+        cmd: mix local.hex --if-missing
+      register: werkstatt_install_hex
+      changed_when: not werkstatt_install_hex.stdout is regex('^$')
