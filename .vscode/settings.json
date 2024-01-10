@@ -13,5 +13,8 @@
         "*.yaml": "ansible",
         ".ansible-lint": "yaml"
     },
-    "files.trimTrailingWhitespace": true
+    "files.trimTrailingWhitespace": true,
+    "explorer.fileNesting.patterns": {
+        "main.playbook.yml": "*.playbook.yml"
+    }
 }
