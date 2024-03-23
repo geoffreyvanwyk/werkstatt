@@ -1,0 +1,33 @@
+---
+- name: Install NeoVim and AstroNvim
+  hosts: all
+
+  tasks:
+    - name: Create directory for NeoVim
+      become: true
+      ansible.builtin.file:
+        path: /opt/neovim
+        state: directory
+        mode: u=rwx,go=rx
+
+    - name: Download NeoVim AppImage
+      become: true
+      ansible.builtin.get_url:
+        url: https://github.com/neovim/neovim/releases/download/v0.9.5/nvim.appimage
+        dest: /opt/neovim/nvim.appimage
+        mode: u=rwx,g=rx,o=rx
+
+    - name: Extract AppImage
+      become: true
+      ansible.builtin.command:
+        chdir: /opt/neovim
+        cmd: ./nvim.appimage --appimage-extract
+        creates: /opt/neovim/squashfs-root
+
+    - name: Install NeoVim
+      become: true
+      ansible.builtin.file:
+        src: /opt/neovim/squashfs-root/usr/bin/nvim
+        dest: /usr/local/bin/nvim
+        state: link
+        mode: u=rwx,go=rx
