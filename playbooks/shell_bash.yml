@@ -1,4 +1,20 @@
 ---
+- name: Bash - Bourne Again Shell
+  hosts: all
+
+  tasks:
+    - name: Deploy bash aliases file # noqa no-relative-paths
+      ansible.builtin.copy:
+        src: ../files/.bash_aliases
+        dest: ~/.bash_aliases
+        mode: u=rw,go=r
+
+    - name: Deploy bash run-commands file # noqa no-relative-paths
+      ansible.builtin.copy:
+        src: ../files/.bashrc
+        dest: ~/.bashrc
+        mode: u=rw,go=r
+
 - name: Ble.sh - a modern line editor for bash
   hosts: all
 
@@ -53,18 +69,6 @@
             cmd: mv ~/.local/share/ble-{{ werkstatt_blesh_version }} ~/.local/share/blesh
             creates: ~/.local/share/blesh
 
-        - name: Replace readline with ble.sh - step 1
-          ansible.builtin.lineinfile:
-            path: /home/{{ ansible_user }}/.bashrc
-            line: "[[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --attach=none # Werkstatt - absolute first line"
-            insertbefore: BOF # Beginning Of File
-
-        - name: Replace readline with ble.sh - step 2
-          ansible.builtin.lineinfile:
-            path: /home/{{ ansible_user }}/.bashrc
-            line: "[[ ${BLE_VERSION-} ]] && ble-attach # Werkstatt - absolute last line"
-            insertafter: EOF # End Of File
-
     - name: Delete ble.sh archive
       ansible.builtin.file:
         path: /tmp/blesh.tar.xz
@@ -73,27 +77,29 @@
 - name: Starship - minimal, blazingly fast, infinitely customizable prompt
   hosts: all
   tasks:
-    - name: Download Starship installation script
-      ansible.builtin.get_url:
-        url: https://starship.rs/install.sh
-        dest: /tmp/starship_install.sh
-        mode: ugo=rwx
+    - name: Is Starship installed?
+      ansible.builtin.stat:
+        path: /usr/local/bin/starship
+      register: werkstatt_stat_starship
 
-    - name: Install Starship
-      become: true
-      ansible.builtin.shell:
-        executable: /usr/bin/bash
-        chdir: /tmp
-        cmd: ./starship_install.sh --yes
-        creates: /usr/local/bin/starship
+    - name: Download and install Starship
+      when: not werkstatt_stat_starship.stat.exists
+      block:
+        - name: Download Starship installation script
+          ansible.builtin.get_url:
+            url: https://starship.rs/install.sh
+            dest: /tmp/starship_install.sh
+            mode: ugo=rwx
+
+        - name: Install Starship
+          become: true
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            chdir: /tmp
+            cmd: ./starship_install.sh --yes
+            creates: /usr/local/bin/starship
 
     - name: Delete Starship install script
       ansible.builtin.file:
         path: /tmp/starship_install.sh
         state: absent
-
-    - name: Active Starship for bash
-      ansible.builtin.lineinfile:
-        path: ~/.bashrc
-        line: 'eval "$(starship init bash)" # Werkstatt - nothing before this line'
-        insertbefore: "# Werkstatt - absolute last line"
