@@ -56,16 +56,44 @@
         - name: Replace readline with ble.sh - step 1
           ansible.builtin.lineinfile:
             path: /home/{{ ansible_user }}/.bashrc
-            line: "[[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --attach=none"
+            line: "[[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --attach=none # Werkstatt - absolute first line"
             insertbefore: BOF # Beginning Of File
 
         - name: Replace readline with ble.sh - step 2
           ansible.builtin.lineinfile:
             path: /home/{{ ansible_user }}/.bashrc
-            line: "[[ ${BLE_VERSION-} ]] && ble-attach"
+            line: "[[ ${BLE_VERSION-} ]] && ble-attach # Werkstatt - absolute last line"
             insertafter: EOF # End Of File
 
     - name: Delete ble.sh archive
       ansible.builtin.file:
         path: /tmp/blesh.tar.xz
         state: absent
+
+- name: Starship - minimal, blazingly fast, infinitely customizable prompt
+  hosts: all
+  tasks:
+    - name: Download Starship installation script
+      ansible.builtin.get_url:
+        url: https://starship.rs/install.sh
+        dest: /tmp/starship_install.sh
+        mode: ugo=rwx
+
+    - name: Install Starship
+      become: true
+      ansible.builtin.shell:
+        executable: /usr/bin/bash
+        chdir: /tmp
+        cmd: ./starship_install.sh --yes
+        creates: /usr/local/bin/starship
+
+    - name: Delete Starship install script
+      ansible.builtin.file:
+        path: /tmp/starship_install.sh
+        state: absent
+
+    - name: Active Starship for bash
+      ansible.builtin.lineinfile:
+        path: ~/.bashrc
+        line: 'eval "$(starship init bash)" # Werkstatt - nothing before this line'
+        insertbefore: "# Werkstatt - absolute last line"
