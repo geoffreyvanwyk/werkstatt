@@ -1,0 +1,10 @@
+---
+- name: Get path to fish command
+  ansible.builtin.command:
+    cmd: which fish
+  register: werkstatt_fish_which_fish
+  changed_when: no
+
+- name: Set path to fish command as fact
+  ansible.builtin.set_fact:
+    werkstatt_fish_path: "{{ werkstatt_fish_which_fish.stdout }}"

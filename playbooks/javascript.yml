@@ -1,0 +1,63 @@
+---
+- name: Install JavaScript via Node.js and Node Version Manager
+  hosts: all
+  tasks:
+    - name: Set path to fish command as fact
+      ansible.builtin.include_tasks: ../tasks/fish_executable_path.yml
+
+    - name: Install Node Version Manager
+      ansible.builtin.shell:
+        executable: "{{ werkstatt_fish_path }}"
+        cmd: fisher install jorgebucaran/nvm.fish
+        creates: ~/.config/fish/functions/nvm.fish
+
+    - name: Set default Node version
+      block:
+        - name: Query default Node version
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: set --query nvm_default_version
+          register: werkstatt_query_default_node_version
+          # The command `set --query` will return as its exit status code the
+          # number of undefined variables passed to it as arguments. A nonzero
+          # exit status code means the command failed. That would stop
+          # execution of the playbook. Since we want to use that exit status
+          # code in the following task, we need to ignore that failure.
+          ignore_errors: yes
+          changed_when: no
+
+        - name: Has the default Node version been set?
+          # The rc (return code) property is the number of
+          # variables passed to `set --query` which have not been defined.
+          ansible.builtin.set_fact:
+            werkstatt_isset_default_node_version: "{{
+              werkstatt_query_default_node_version.rc == 0
+              }}"
+
+        - name: Find latest Node version
+          when: not werkstatt_isset_default_node_version
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: nvm ls-remote | grep latest | string trim | cut -d' ' -f1
+          register: werkstatt_find_latest_node_version
+          changed_when: no
+
+        - name: Set default Node version universally
+          when: not werkstatt_isset_default_node_version
+          ansible.builtin.shell:
+            executable: "{{ werkstatt_fish_path }}"
+            cmd: set --universal nvm_default_version {{ werkstatt_find_latest_node_version.stdout }}
+          changed_when: yes
+
+    - name: Set default Node packages
+      ansible.builtin.shell:
+        executable: "{{ werkstatt_fish_path }}"
+        cmd: set --universal nvm_default_packages grunt tldr yarn
+      changed_when: yes
+
+    - name: Install default Node version
+      when: not werkstatt_isset_default_node_version
+      ansible.builtin.shell:
+        executable: "{{ werkstatt_fish_path }}"
+        cmd: nvm install $nvm_default_version
+      changed_when: yes
