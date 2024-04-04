@@ -1,0 +1,6 @@
+---
+- name: Compile then install ripgrep
+  ansible.builtin.command:
+    chdir: /opt/ripgrep
+    cmd: cargo install --path . --features pcre2
+  changed_when: true

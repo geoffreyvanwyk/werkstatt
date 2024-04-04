@@ -1,0 +1,15 @@
+---
+- name: Install Rust programming language and associated tools
+  hosts: all
+  tasks:
+    - name: Download Cargo installer
+      ansible.builtin.get_url:
+        url: https://sh.rustup.rs
+        dest: /home/werker/rustup-init.sh
+        mode: u=rwx,go=r
+
+    - name: Install Cargo
+      ansible.builtin.command:
+        chdir: /home/werker
+        cmd: ./rustup-init.sh -y
+        creates: /home/werker/.cargo

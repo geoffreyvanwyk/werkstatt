@@ -1,0 +1,54 @@
+---
+- name: Install Go programming language
+  hosts: all
+
+  vars:
+    werkstatt_go_version: "1.22.1"
+
+  tasks:
+    - name: Is Go already installed?
+      ansible.builtin.stat:
+        path: /usr/local/go/VERSION
+      register: werkstatt_stat_go_version
+
+    - name: Display current Go version
+      when: werkstatt_stat_go_version.stat.exists
+      ansible.builtin.shell:
+        executable: /usr/bin/bash
+        cmd: set -o pipefail && head -n1 < /usr/local/go/VERSION | sed 's/go//'
+      register: werkstatt_display_current_go_version
+      changed_when: false
+
+    - name: Is Go version outdated?
+      ansible.builtin.set_fact:
+        werkstatt_is_go_outdated: "{{
+          not werkstatt_stat_go_version.stat.exists
+          or
+          not (werkstatt_display_current_go_version.stdout == werkstatt_go_version) }}"
+
+    - name: Download, extract, then install Go
+      when: werkstatt_is_go_outdated
+      block:
+        - name: Download new Go version
+          ansible.builtin.get_url:
+            url: https://go.dev/dl/go{{ werkstatt_go_version }}.linux-amd64.tar.gz
+            dest: /home/{{ ansible_user }}
+            mode: u=rw,go=r
+
+        - name: Remove existing Go directory
+          ansible.builtin.file:
+            path: /usr/local/go
+            state: absent
+
+        - name: Extract & Install new Go version
+          become: true
+          ansible.builtin.unarchive:
+            src: /home/{{ ansible_user }}/go{{ werkstatt_go_version }}.linux-amd64.tar.gz
+            remote_src: true
+            dest: /usr/local
+            mode: u=rwX,go=rX
+
+    - name: Remove downloaded Go archive
+      ansible.builtin.file:
+        path: /home/{{ ansible_user }}/go{{ werkstatt_go_version }}.linux-amd64.tar.gz
+        state: absent
