@@ -47,3 +47,8 @@
         depth: 1
         dest: /home/{{ ansible_user }}/.config/nvim
         update: false
+
+    - name: Delete .git directory from AstroNvim template
+      ansible.builtin.file:
+        path: /home/{{ ansible_user }}/.config/nvim/.git
+        state: absent
