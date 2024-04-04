@@ -1,5 +1,5 @@
 ---
-- name: Install NeoVim and AstroNvim
+- name: NeoVim Text Editor
   hosts: all
 
   tasks:
@@ -31,3 +31,19 @@
         dest: /usr/local/bin/nvim
         state: link
         mode: u=rwx,go=rx
+
+- name: Install AstroNvim
+  hosts: all
+
+  tasks:
+    - name: Install Treesitter CLI with Cargo
+      community.general.cargo:
+        name: tree-sitter-cli
+
+    - name: Clone AstroNvim template
+      ansible.builtin.git:
+        repo: https://github.com/AstroNvim/template
+        version: main
+        depth: 1
+        dest: /home/{{ ansible_user }}/.config/nvim
+        update: false

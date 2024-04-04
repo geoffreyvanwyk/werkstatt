@@ -1,0 +1,49 @@
+---
+- name: Configure Git source code management
+  hosts: all
+
+  tasks:
+    - name: Add abbreviations for Git
+      vars:
+        fish_abbreviations_to_add:
+          g: git
+          gb: git branch
+          gc: git commit
+          gco: git checkout
+          gp: git push
+          gpl: git pull
+          gr: git remote
+          gs: git status
+      ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
+
+    - name: LazyGit - Simple terminal UI for Git commands
+      vars:
+        lazygit_version: 0.41.0
+      block:
+        - name: Create directory for LazyGit
+          become: true
+          ansible.builtin.file:
+            path: /opt/lazygit/lazygit_{{ lazygit_version }}
+            state: directory
+            owner: "{{ ansible_user }}"
+            group: "{{ ansible_user }}"
+            mode: u=rwX,go=rX
+
+        - name: Download LazyGit archive
+          ansible.builtin.get_url:
+            url: https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz
+            dest: /opt/lazygit/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz
+            mode: u=rw,go=r
+
+        - name: Extract LazyGit archive
+          ansible.builtin.unarchive:
+            src: /opt/lazygit/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz
+            remote_src: true
+            dest: /opt/lazygit/lazygit_{{ lazygit_version }}
+
+        - name: Install LazyGit
+          become: true
+          ansible.builtin.command:
+            chdir: /opt/lazygit/lazygit_{{ lazygit_version }}
+            cmd: install lazygit /usr/local/bin
+            creates: /usr/local/bin/lazygit
