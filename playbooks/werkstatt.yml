@@ -1,4 +1,15 @@
 ---
+- name: Werkstatt
+  hosts: all
+
+  tasks:
+    - name: Create Werkstatt configuration directory
+      become: true
+      ansible.builtin.file:
+        path: /etc/werkstatt
+        state: directory
+        mode: u=rwX,go=rX
+
 - name: Set up Werkstatt project
   hosts: all
 

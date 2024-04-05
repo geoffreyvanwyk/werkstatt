@@ -5,13 +5,13 @@
   tasks:
     - name: Deploy bash aliases file # noqa no-relative-paths
       ansible.builtin.copy:
-        src: ../files/.bash_aliases
-        dest: ~/.bash_aliases
+        src: ../files/bash_aliases
+        dest: /etc/werkstatt/bash_aliases
         mode: u=rw,go=r
 
     - name: Deploy bash run-commands file # noqa no-relative-paths
       ansible.builtin.copy:
-        src: ../files/.bashrc
+        src: ../files/bashrc
         dest: ~/.bashrc
         mode: u=rw,go=r
 

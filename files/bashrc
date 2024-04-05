@@ -1,19 +1,11 @@
+# THIS FILE IS MANAGED BY WERKSTATT.
+# PLEASE create ~/.bash_myrc FOR PERSONAL CUSTOMIZATIONS.
+# THIS FILE WILL SOURCE ~/.bash_myrc.
+
 #--- ble.sh Line Editor - First Step of Activation
 
 # Werkstatt - line below must the first line of code.
  [[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --attach=none
-
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
-
-#--- General Configuration
-
-# If not running interactively, don't do anything.
-case $- in
-    *i*) ;;
-      *) return;;
-esac
 
 #--- Terminal Window
 
@@ -49,11 +41,6 @@ if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-##------ gcc
-
-# Colored GCC warnings and errors.
-export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
 ##------ less
 
 # Make less more friendly for non-text input files, see lesspipe(1).
@@ -68,6 +55,9 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 #--- Alias definitions
+
+# Aliases supplied by Werkstatt.
+. /etc/werkstatt/bash_aliases
 
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
@@ -92,8 +82,8 @@ fi
 #--- Import user configuration
 
 # Write bash customizations in the file below.
-if [[ -f ~/.bash_myconf]]; then
-    . ~/.bash_myconf
+if [[ -f ~/.bash_myrc ]]; then
+    . ~/.bash_myrc
 fi
 
 #--- Activate Starship Prompt
