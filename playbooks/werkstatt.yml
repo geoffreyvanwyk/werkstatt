@@ -16,14 +16,14 @@
   tasks:
     - name: Create parent directory for source code
       ansible.builtin.file:
-        path: ~/Sources
+        path: ~/src
         mode: u=rwX,g=rwX,o=rX
         state: directory
 
     - name: Clone repository from GitHub
       ansible.builtin.git:
-        repo: https://github.com/geoffreyvanwyk/Werkstatt
-        dest: ~/Sources/Werkstatt
+        repo: https://github.com/geoffreyvanwyk/werkstatt
+        dest: ~/src/werkstatt
         version: master
         update: yes
 
@@ -36,4 +36,4 @@
     - name: Install dependencies
       community.general.ansible_galaxy_install:
         type: both
-        requirements_file: ~/Sources/Werkstatt/requirements.yml
+        requirements_file: ~/src/werkstatt/requirements.yml
