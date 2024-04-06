@@ -4,6 +4,7 @@
 
   tasks:
     - name: Deploy bash aliases file # noqa no-relative-paths
+      become: true
       ansible.builtin.copy:
         src: ../files/bash_aliases
         dest: /etc/werkstatt/bash_aliases
