@@ -1,39 +1,11 @@
 ---
-- name: Werkstatt
+- name: Werkstatt Development Environment
   hosts: all
 
   tasks:
     - name: Create Werkstatt configuration directory
       become: true
       ansible.builtin.file:
-        path: /etc/werkstatt
+        path: /usr/local/share/werkstatt
         state: directory
         mode: u=rwX,go=rX
-
-- name: Set up Werkstatt project
-  hosts: all
-
-  tasks:
-    - name: Create parent directory for source code
-      ansible.builtin.file:
-        path: ~/src
-        mode: u=rwX,g=rwX,o=rX
-        state: directory
-
-    - name: Clone repository from GitHub
-      ansible.builtin.git:
-        repo: https://github.com/geoffreyvanwyk/werkstatt
-        dest: ~/src/werkstatt
-        version: master
-        update: yes
-
-    - name: Generate locale required by ansible
-      become: yes
-      community.general.locale_gen:
-        name: "en_US.UTF-8"
-        state: present
-
-    - name: Install dependencies
-      community.general.ansible_galaxy_install:
-        type: both
-        requirements_file: ~/src/werkstatt/requirements.yml

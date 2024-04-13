@@ -32,7 +32,7 @@
         - name: Download new Go version
           ansible.builtin.get_url:
             url: https://go.dev/dl/go{{ werkstatt_go_version }}.linux-amd64.tar.gz
-            dest: /home/{{ ansible_user }}
+            dest: /tmp
             mode: u=rw,go=r
 
         - name: Remove existing Go directory
@@ -43,12 +43,12 @@
         - name: Extract & Install new Go version
           become: true
           ansible.builtin.unarchive:
-            src: /home/{{ ansible_user }}/go{{ werkstatt_go_version }}.linux-amd64.tar.gz
+            src: /tmp/go{{ werkstatt_go_version }}.linux-amd64.tar.gz
             remote_src: true
             dest: /usr/local
             mode: u=rwX,go=rX
 
     - name: Remove downloaded Go archive
       ansible.builtin.file:
-        path: /home/{{ ansible_user }}/go{{ werkstatt_go_version }}.linux-amd64.tar.gz
+        path: /tmp/go{{ werkstatt_go_version }}.linux-amd64.tar.gz
         state: absent

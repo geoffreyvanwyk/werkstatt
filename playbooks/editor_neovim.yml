@@ -40,15 +40,21 @@
       community.general.cargo:
         name: tree-sitter-cli
 
+    - name: Has AstroNvim templete already been cloned?
+      ansible.builtin.stat:
+        path: "{{ ansible_env.XDG_CONFIG_HOME }}/nvim"
+      register: werkstatt_stat_astronvim 
+
     - name: Clone AstroNvim template
+      when: not werkstatt_stat_astronvim.stat.exists
       ansible.builtin.git:
         repo: https://github.com/AstroNvim/template
         version: main
         depth: 1
-        dest: /home/{{ ansible_user }}/.config/nvim
+        dest: "{{ ansible_env.XDG_CONFIG_HOME }}/nvim"
         update: false
 
     - name: Delete .git directory from AstroNvim template
       ansible.builtin.file:
-        path: /home/{{ ansible_user }}/.config/nvim/.git
+        path: "{{ ansible_env.XDG_CONFIG_HOME }}/nvim/.git"
         state: absent

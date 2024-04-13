@@ -3,17 +3,34 @@
   hosts: all
 
   tasks:
-    - name: Deploy bash aliases file # noqa no-relative-paths
+    - name: Add bash environment variables
+      vars:
+        bash_envs_to_add:
+          XDG_CONFIG_HOME: $HOME/.config
+      ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
+
+    - name: Add bash aliases
+      vars:
+        bash_aliases_to_add:
+          dir: dir --color=auto
+          vdir: vdir --color=auto
+          grep: grep --color=auto
+          fgrep: fgrep --color=auto
+          egrep: egrep --color=auto
+      ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+
+      # This file is for the user to copy in case he messes up ~/.bashrc.
+    - name: Deploy bash run-commands # noqa no-relative-paths
       become: true
       ansible.builtin.copy:
-        src: ../files/bash_aliases
-        dest: /etc/werkstatt/bash_aliases
+        src: ../files/bashrc
+        dest: /usr/local/share/werkstatt/bashrc
         mode: u=rw,go=r
 
-    - name: Deploy bash run-commands file # noqa no-relative-paths
+    - name: Deploy bash run-commands file for user  # noqa no-relative-paths
       ansible.builtin.copy:
         src: ../files/bashrc
-        dest: ~/.bashrc
+        dest: "{{ ansible_env.HOME }}/.bashrc"
         mode: u=rw,go=r
 
 - name: Ble.sh - a modern line editor for bash
@@ -77,6 +94,7 @@
 
 - name: Starship - minimal, blazingly fast, infinitely customizable prompt
   hosts: all
+
   tasks:
     - name: Is Starship installed?
       ansible.builtin.stat:

@@ -1,0 +1,34 @@
+---
+- name: Rust Programming Language
+  hosts: all
+  tasks:
+    - name: Is Rust installed?
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.cargo/bin/rustc"
+      register: werkstatt_stat_rust
+
+    - name: Download then install Rust
+      when: not werkstatt_stat_rust.stat.exists
+      block:
+        - name: Download Cargo installer
+          ansible.builtin.get_url:
+            url: https://sh.rustup.rs
+            dest: /tmp/rustup-init.sh
+            mode: u=rwx,go=r
+
+        - name: Install Cargo
+          ansible.builtin.command:
+            chdir: /tmp
+            cmd: ./rustup-init.sh -y
+            creates: "{{ ansible_env.HOME }}/.cargo"
+
+    - name: Delete Rust install script
+      ansible.builtin.file:
+        path: /tmp/rustup-init.sh
+        state: absent
+
+    - name: Add Rust to executable path
+      vars:
+        bash_paths_to_add:
+          - "{{ ansible_env.HOME }}/.cargo/bin"
+      ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml

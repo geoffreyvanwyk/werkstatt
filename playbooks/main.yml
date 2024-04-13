@@ -1,35 +1,54 @@
 ---
-- name: Provision Werkstatt development environment
+- name: Main
   hosts: all
 
   tasks:
     - name: Ensure packages are up-to-date
       become: yes
       ansible.builtin.apt:
-        update_cache: yes
-        cache_valid_time: "{{ 3600 * 24 * 7 }}" # 7 days
-        upgrade: yes
+        update_cache: true
+        cache_valid_time: "{{ 60 * 60 * 24 * 7 }}" # 7 days in seconds
+        upgrade: true
 
-- name: Install Friendly Interactive Shell
-  ansible.builtin.import_playbook: ./fish.yml
+    - name: Install important general packages
+      become: true
+      ansible.builtin.apt:
+        package:
+          # build-essential contains list of packages necessary for building
+          # Debian packages, such as C & C++ compilers. These are also
+          # necessary for building other packages, e.g. Rust packages with
+          # Cargo.
+          - build-essential
 
-- name: Install utility commands
+- name: Werkstatt Development Environment
+  ansible.builtin.import_playbook: ./werkstatt.yml
+
+- name: Bash - Bourne Again Shell
+  ansible.builtin.import_playbook: ./shell_bash.yml
+
+- name: Rust Programming Language
+  ansible.builtin.import_playbook: ./lang_rust.yml
+  
+- name: Go Programming Language
+  ansible.builtin.import_playbook: ./lang_go.yml
+
+# - name: Python Programming Language
+#   ansible.builtin.import_playbook: ./lang_python.yml
+
+- name: JavaScript Programming Language
+  ansible.builtin.import_playbook: ./lang_javascript.yml
+
+- name: Utility Programmes
   ansible.builtin.import_playbook: ./utils.yml
 
-- name: Configure Git source code management
-  ansible.builtin.import_playbook: ./git.yml
+- name: Version Control with Git
+  ansible.builtin.import_playbook: ./version_control_git.yml
 
-- name: Install Python packages and virtual environments
-  ansible.builtin.import_playbook: ./python.yml
+# - name: Containerization with Docker
+#   ansible.builtin.import_playbook: ./containers_docker.yml
+#
+# - name: Automation with Ansible
+#   ansible.builtin.import_playbook: ./automation_ansible.yml
 
-- name: Install and configure Ansible
-  ansible.builtin.import_playbook: ./ansible.yml
-
-- name: Install Docker containerization system
-  ansible.builtin.import_playbook: ./docker.yml
-
-- name: Install JavaScript via Node.js and Node Version Manager
-  ansible.builtin.import_playbook: ./javascript.yml
-
-- name: Set up Werkstatt project
-  ansible.builtin.import_playbook: ./werkstatt.yml
+- name: Neovim Text Editor
+  ansible.builtin.import_playbook: ./editor_neovim.yml

@@ -1,0 +1,104 @@
+---
+- name: JavaScript Programming Language
+  hosts: all
+
+  vars:
+    werkstatt_nvm_version: 0.39.7
+
+  tasks:
+    - name: Is nvm installed?
+      ansible.builtin.stat:
+        path: "{{ ansible_env.XDG_CONFIG_HOME }}/nvm/nvm.sh"
+      register: werkstatt_stat_nvm
+
+    - name: Display nvm version
+      when: werkstatt_stat_nvm.stat.exists
+      ansible.builtin.shell:
+        executable: /usr/bin/bash
+        cmd: nvm --version
+      changed_when: false
+      register: werkstatt_display_nvm_version
+
+    - name: Is nvm outdated?
+      ansible.builtin.set_fact:
+        werkstatt_is_nvm_outdated: "{{
+          not werkstatt_stat_nvm.stat.exists
+          or
+          not (werkstatt_display_nvm_version.stdout == werkstatt_nvm_version) }}"
+
+    - name: Download then install nvm
+      when: werkstatt_is_nvm_outdated
+      block:
+        - name: Download nvm install script
+          ansible.builtin.get_url:
+            url: https://raw.githubusercontent.com/nvm-sh/nvm/v{{ werkstatt_nvm_version }}/install.sh
+            dest: /tmp/nvm_install.sh
+            mode: ugo=rwx
+
+        - name: Delete current nvm directory
+          ansible.builtin.file:
+            path: "{{ ansible_env.XDG_CONFIG_HOME }}/nvm"
+            state: absent
+
+        - name: Run nvm install script
+          environment:
+            PROFILE: /dev/null
+          ansible.builtin.command:
+            chdir: /tmp
+            cmd: ./nvm_install.sh
+            creates: "{{ ansible_env.XDG_CONFIG_HOME }}/nvm/nvm.sh"
+
+    - name: Delete nvm install script
+      ansible.builtin.file:
+        path: /tmp/nvm_install.sh
+        state: absent
+
+    - name: Set nvm directory environment variable
+      vars:
+        bash_envs_to_add:
+          NVM_DIR: $XDG_CONFIG_HOME/nvm
+      ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
+
+    - name: Source nvm script from .bashrc
+      vars:
+        bash_plugins_to_add:
+          - '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+          - '[[ -r $NVM_DIR/bash_completion ]] && \. $NVM_DIR/bash_completion'
+      ansible.builtin.include_tasks: ../tasks/bash_add_plugins.yml
+
+    - name: Create file for default packages
+      ansible.builtin.copy:
+        content: ""
+        dest: "{{ ansible_env.XDG_CONFIG_HOME }}/nvm/default-packages"
+        force: false
+        mode: u=rw,go=r
+
+    - name: List default packages
+      loop:
+        # Execute npm package binaries: www.npmjs.com/package/npm
+        - npx
+        # Alternative to npm: www.yarn.com
+        - yarn
+        # Task Runner: www.gruntjs.com
+        - grunt
+        # Task Runner: www.gulpjs.com
+        - gulp-cli
+        # Command Examples: www.tldr.sh
+        - tldr
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env.XDG_CONFIG_HOME }}/nvm/default-packages"
+        line: "{{ item }}"
+
+    - name: Has default node version been set?
+      ansible.builtin.shell:
+        executable: /usr/bin/bash
+        cmd: nvm current
+      changed_when: false
+      register: werkstatt_display_current_node_version
+
+    - name: Dowload, compile, then install latest node version
+      when: werkstatt_display_current_node_version.stdout == 'none'
+      ansible.builtin.shell:
+        executable: /usr/bin/bash
+        cmd: nvm install --default node
+      changed_when: true

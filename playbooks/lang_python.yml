@@ -1,0 +1,73 @@
+---
+- name: Python Programming Language
+  hosts: all
+
+  tasks:
+    - name: Add aliases for Python
+      vars:
+        bash_aliases_to_add:
+          py: python
+      ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+
+    - name: Install Debian packages for Python
+      become: true
+      ansible.builtin.apt:
+        package:
+          ##
+          # pip is the Python package installer. You can use it to install
+          # packages from the Python Package Index and other indexes.
+          #
+          # @link  https://pip.pypa.io/en/stable/
+          ##
+          - python3-pip
+
+          ##
+          # The venv module is part of the Python Standard Library. It supports
+          # creating lightweight “virtual environments”, each with their own
+          # independent set of Python packages installed in their site
+          # directories.
+          #
+          # It is a dependency for pipx.
+          #
+          # @link  https://docs.python.org/3/library/venv.html
+          ##
+          - python3-venv
+
+    - name: Install Python packages
+      ansible.builtin.pip:
+        name:
+          ##
+          # pipx allows you to install Python packages that you’d habitually
+          # run as stand-alone applications, in isolated environments.
+          #
+          # @link  https://pipx.pypa.io
+          ##
+          - pipx
+
+    - name: Are pipx applications on $PATH?
+      ansible.builtin.set_fact:
+        werkstatt_is_pipx_on_path: "{{
+          ansible_env.PATH is search(ansible_env.HOME + '/.local/bin') }}"
+
+    - name: Ensure that applications installed with pipx are on $PATH
+      when: not werkstatt_is_pipx_on_path
+      ansible.builtin.command:
+        cmd: python3 -m pipx ensurepath
+      changed_when: not werkstatt_is_pipx_on_path
+
+    - name: List out all packages installed with pipx
+      ansible.builtin.command:
+        cmd: python3 -m pipx list
+      changed_when: false
+      register: werkstatt_list_of_pipx_packages
+
+    ##
+    # bpython is a fancy interface to the Python interactive interpreter.
+    #
+    # @link  https://bpython-interpreter.org/
+    ##
+    - name: A fancy interface to the Python interactive interpreter - bpython
+      when: not 'bpython' in werkstatt_list_of_pipx_packages.stdout
+      ansible.builtin.command:
+        cmd: python3 -m pipx install bpython
+      changed_when: not 'bpython' in werkstatt_list_of_pipx_packages.stdout
