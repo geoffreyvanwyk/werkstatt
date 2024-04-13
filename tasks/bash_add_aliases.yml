@@ -1,0 +1,15 @@
+---
+- name: Create bash aliases file
+  become: true
+  ansible.builtin.copy:
+    content: ""
+    dest: /usr/local/share/werkstatt/bash_aliases
+    force: false
+    mode: u=rw,go=r
+
+- name: Add bash aliases
+  become: true
+  loop: "{{ bash_aliases_to_add | dict2items }}"
+  ansible.builtin.lineinfile:
+    path: /usr/local/share/werkstatt/bash_aliases
+    line: alias {{ item.key }}='{{ item.value }}'

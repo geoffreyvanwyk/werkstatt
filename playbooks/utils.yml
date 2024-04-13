@@ -1,0 +1,237 @@
+---
+- name: Utility Programmes
+  hosts: all
+
+  tasks:
+    - name: A modern replacement for ls - eza
+      block:
+        - name: Install GNU Privacy Guard
+          become: true
+          ansible.builtin.apt:
+            name: gpg
+
+        - name: Make directory for APT keyrings
+          become: true
+          ansible.builtin.file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: u=rwX,go=rX
+
+        - name: Is encryption key for eza Debian repository installed?
+          ansible.builtin.stat:
+            path: /etc/apt/keyrings/gierens.gpg
+          register: werkstatt_stat_eza_key
+
+        - name: Download armoured ASCII file for eza Debian repository
+          when: not werkstatt_stat_eza_key.stat.exists
+          ansible.builtin.get_url:
+            url: https://raw.githubusercontent.com/eza-community/eza/main/deb.asc
+            dest: /tmp/eza-deb.asc
+            mode: u=rw,go=r
+
+        - name: Install encryption key for eza Debian repository
+          become: true
+          ansible.builtin.command:
+            chdir: /tmp
+            cmd: gpg --dearmor -o /etc/apt/keyrings/gierens.gpg eza-deb.asc
+            creates: /etc/apt/keyrings/gierens.gpg
+
+        - name: Delete armoured ASCII file for eza Debian repository
+          ansible.builtin.file:
+            path: /tmp/eza-deb.asc
+            state: absent
+
+        - name: Create APT sources list file for eza Debian repository
+          become: true
+          ansible.builtin.copy:
+            content: ""
+            dest: /etc/apt/sources.list.d/gierens.list
+            force: false
+            mode: u=rw,go=r
+
+        - name: Add eza Debian repository to APT sources
+          become: true
+          ansible.builtin.lineinfile:
+            path: /etc/apt/sources.list.d/gierens.list
+            line: "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main"
+
+        - name: Install eza
+          become: yes
+          ansible.builtin.apt:
+            package: eza
+            update_cache: true
+
+        - name: Add aliases for eza
+          vars:
+            bash_aliases_to_add:
+              l: eza --icons
+              ls: eza --icons
+              la: eza --all --icons
+              ll: eza --long --icons --git
+              lla: eza --long --all --icons --git
+              llt: eza --long --tree --icons --git
+              llta: eza --long --tree --all --icons --git
+              lt: eza --tree --icons
+              lta: eza --tree --all --icons
+          ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+
+    - name: A cat clone with wings - bat
+      block:
+        - name: Install bat
+          become: yes
+          ansible.builtin.apt:
+            deb: https://github.com/sharkdp/bat/releases/download/v0.24.0/bat-musl_0.24.0_amd64.deb
+
+        - name: Add aliases for bat
+          vars:
+            bash_aliases_to_add:
+              cat: bat
+              catp: bat --plain
+              catpp: bat --plain --paging=never
+          ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+
+    - name: Simple, fast, user-friendly find - fd
+      block:
+        - name: Install fd
+          become: yes
+          ansible.builtin.apt:
+            deb: https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-musl_9.0.0_amd64.deb
+
+        - name: Add aliases for fd
+          vars:
+            bash_aliases_to_add:
+              find: fd
+          ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+
+    - name: Command-line fuzzy finder - fzf
+      block:
+        - name: Make directory for fzf
+          become: true
+          ansible.builtin.file:
+            path: /opt/fzf
+            state: directory
+            mode: u=rwX,go=rX
+
+        - name: Clone source code repository of fzf
+          become: true
+          ansible.builtin.git:
+            repo: https://github.com/junegunn/fzf.git
+            dest: /opt/fzf
+            version: 0.49.0
+
+        - name: Install Fuzzy Finder
+          become: true
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            chdir: /opt/fzf
+            cmd: set -o pipefail && echo y | ./install --no-bash
+            creates: /opt/fzf/bin/fzf
+
+        - name: Add fzf commands directory to executable path
+          vars:
+            bash_paths_to_add:
+              - /opt/fzf/bin
+          ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml
+
+        - name: Integrate fzf with bash
+          vars:
+            bash_plugins_to_add:
+              - eval "$(fzf --bash)"
+          ansible.builtin.include_tasks: ../tasks/bash_add_plugins.yml
+
+    - name: A faster grep - ripgrep
+      block:
+        - name: Create directory for ripgrep source code
+          become: true
+          ansible.builtin.file:
+            path: /opt/ripgrep
+            state: directory
+            owner: "{{ ansible_user }}"
+            group: "{{ ansible_user }}"
+            mode: u=rwX,go=rX
+
+        - name: Clone ripgrep source code repository
+          ansible.builtin.git:
+            repo: https://github.com/BurntSushi/ripgrep
+            dest: /opt/ripgrep
+            version: 14.1.0
+          register: werkstatt_clone_ripgrep
+
+        - name: Compile then install ripgrep # noqa no-handler
+          when: werkstatt_clone_ripgrep.changed
+          ansible.builtin.command:
+            chdir: /opt/ripgrep
+            cmd: cargo install --path . --features pcre2
+          changed_when: true
+
+    # Run with command: btm
+    - name: Bottom - a superior top
+      become: true
+      vars:
+        werkstatt_bottom_version: 0.9.6
+      ansible.builtin.apt:
+        deb: https://github.com/ClementTsang/bottom/releases/download/{{ werkstatt_bottom_version }}/bottom_{{ werkstatt_bottom_version }}_amd64.deb
+
+    # TODO Install httpie
+    # Website: www.httpie.io
+    # - name: Superior HTTP client - httpie
+
+- name: A faster du, with terminal UI - gdu
+  hosts: all
+
+  vars:
+    werkstatt_gdu_version: v5.27.0
+
+  tasks:
+    - name: Is gdu already installed?
+      ansible.builtin.stat:
+        path: /usr/local/bin/gdu
+      register: werkstatt_stat_gdu
+
+    - name: Display current gdu version
+      when: werkstatt_stat_gdu.stat.exists
+      ansible.builtin.shell:
+        executable: /usr/bin/bash
+        cmd: set -o pipefail && gdu --version | head -n1 | sed 's/Version:\s\+//'
+      changed_when: false
+      register: werkstatt_display_current_gdu_version
+
+    - name: Is gdu version outdated?
+      ansible.builtin.set_fact:
+        werkstatt_is_gdu_outdated: "{{
+          not werkstatt_stat_gdu.stat.exists
+          or
+          not (werkstatt_display_current_gdu_version.stdout == werkstatt_gdu_version) }}"
+
+    - name: Download, extract, then install gdu
+      when: werkstatt_is_gdu_outdated
+      block:
+        - name: Download gdu archive
+          ansible.builtin.get_url:
+            url: https://github.com/dundee/gdu/releases/download/{{ werkstatt_gdu_version }}/gdu_linux_amd64.tgz
+            dest: /tmp/gdu_linux_amd64.tgz
+            mode: u=rw,go=r
+
+        - name: Extract gdu archive
+          ansible.builtin.unarchive:
+            src: /tmp/gdu_linux_amd64.tgz
+            remote_src: true
+            dest: /tmp/
+
+        - name: Install gdu archive
+          become: true
+          ansible.builtin.copy:
+            src: /tmp/gdu_linux_amd64
+            remote_src: true
+            dest: /usr/local/bin/gdu
+            mode: u=rwx,go=rx
+
+    - name: Delete gdu archive
+      ansible.builtin.file:
+        path: /tmp/gdu_linux_amd64.tgz
+        state: absent
+
+    - name: Delete gdu extracted file
+      ansible.builtin.file:
+        path: /tmp/gdu_linux_amd64
+        state: absent

@@ -1,0 +1,15 @@
+---
+- name: Create bash env file
+  become: true
+  ansible.builtin.copy:
+    content: ""
+    dest: /usr/local/share/werkstatt/bash_env
+    force: false
+    mode: u=rw,go=r
+
+- name: Add bash environment variables
+  become: true
+  loop: "{{ bash_envs_to_add | dict2items }}"
+  ansible.builtin.lineinfile:
+    path: /usr/local/share/werkstatt/bash_env
+    line: export {{ item.key }}={{ item.value }}

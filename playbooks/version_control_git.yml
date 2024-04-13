@@ -1,20 +1,25 @@
 ---
-- name: Configure Git source code management
+- name: Version Control with Git
   hosts: all
 
   tasks:
-    - name: Add abbreviations for Git
+    - name: Add aliases for Git
       vars:
-        fish_abbreviations_to_add:
+        bash_aliases_to_add:
           g: git
+          ga: git add
           gb: git branch
           gc: git commit
+          gcl: git clone
           gco: git checkout
+          gf: git fetch
+          gi: git init
+          gm: git merge
           gp: git push
           gpl: git pull
           gr: git remote
           gs: git status
-      ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
+      ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
 
     - name: LazyGit - Simple terminal UI for Git commands
       vars:
