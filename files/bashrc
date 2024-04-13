@@ -45,12 +45,19 @@ fi
 
 ##------ Executable Path
 
-# Paths supplied by Werkstatt.
-if [ -f /usr/local/share/werkstatt/bash_paths ]; then
+###--------- Werkstatt Executble Paths
+
+if [[ -f /usr/local/share/werkstatt/bash_paths ]]; then
   for WERKSTATT_ADDITIONAL_PATH in $(cat /usr/local/share/werkstatt/bash_paths); do
-    if [[ ! -z $WERKSTATT_ADDITIONAL_PATH ]]; then
-      if [[ $PATH != *"$WERKSTATT_ADDITIONAL_PATH"* ]]; then
-        export PATH=$WERKSTATT_ADDITIONAL_PATH:$PATH
+    if [[ ! -z "$WERKSTATT_ADDITIONAL_PATH" ]]; then
+      if [[ -d "$WERKSTATT_ADDITIONAL_PATH" ]]; then
+        if [[ $PATH != *"$WERKSTATT_ADDITIONAL_PATH"* ]]; then
+          export PATH=$WERKSTATT_ADDITIONAL_PATH:$PATH
+        fi
+      fi
+    fi
+  done
+fi
       fi
     fi
   done
