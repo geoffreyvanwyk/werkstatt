@@ -1,17 +1,11 @@
 {
-    "yaml.schemas": {
-        "https://raw.githubusercontent.com/ansible/schemas/main/f/ansible-requirements.json": "file://../requirements.yml"
-    },
-    "ansible.python.interpreterPath": "~/.virtualenvs/main/bin/python",
-    "ansible.python.activationScript": "~/.virtualenvs/main/bin/activate",
-    "ansible.validation.lint.path": "~/.virtualenvs/main/bin/ansible-lint",
-    "python.venvFolders": [
-        "~/.virtualenvs"
-    ],
-    "files.associations": {
-        "*.yml": "ansible",
-        "*.yaml": "ansible",
-        ".ansible-lint": "yaml"
-    },
-    "files.trimTrailingWhitespace": true
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/ansible/schemas/main/f/ansible-requirements.json": "file://../requirements.yml"
+  },
+  "files.associations": {
+    "*.yml": "ansible",
+    "*.yaml": "ansible",
+    ".ansible-lint": "yaml"
+  },
+  "files.trimTrailingWhitespace": true
 }
