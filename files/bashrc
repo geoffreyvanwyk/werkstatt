@@ -40,7 +40,13 @@ shopt -s checkwinsize
 ##------ Werkstatt Environment Variables
 
 if [ -f /usr/local/share/werkstatt/bash_env ]; then
-  . /usr/local/share/werkstatt/bash_env
+  source /usr/local/share/werkstatt/bash_env
+fi
+
+##------ User Environment Variables
+
+if [ -f ~/.bash_env ]; then
+  source ~/.bash_env
 fi
 
 ##------ Executable Path
@@ -48,7 +54,7 @@ fi
 ###--------- Werkstatt Executble Paths
 
 if [[ -f /usr/local/share/werkstatt/bash_paths ]]; then
-  for WERKSTATT_ADDITIONAL_PATH in $(cat /usr/local/share/werkstatt/bash_paths); do
+  for WERKSTATT_ADDITIONAL_PATH in $(\cat /usr/local/share/werkstatt/bash_paths); do
     if [[ ! -z "$WERKSTATT_ADDITIONAL_PATH" ]]; then
       if [[ -d "$WERKSTATT_ADDITIONAL_PATH" ]]; then
         if [[ $PATH != *"$WERKSTATT_ADDITIONAL_PATH"* ]]; then
@@ -62,7 +68,7 @@ fi
 ###--------- User Executble Paths
 
 if [[ -f ~/.bash_paths ]]; then
-  for USER_ADDITIONAL_PATH in $(cat ~/.bash_paths); do
+  for USER_ADDITIONAL_PATH in $(\cat ~/.bash_paths); do
     if [[ ! -z "$USER_ADDITIONAL_PATH" ]]; then
       if [[ -d "$USER_ADDITIONAL_PATH" ]]; then
         if [[ $PATH != *"$USER_ADDITIONAL_PATH"* ]]; then
@@ -75,22 +81,22 @@ fi
 
 #--- Plugins
 
-if [ -f /usr/local/share/werkstatt/bash_plugins ]; then
-  . /usr/local/share/werkstatt/bash_plugins
+if [[ -f /usr/local/share/werkstatt/bash_plugins ]]; then
+  source /usr/local/share/werkstatt/bash_plugins
 fi
 
 #--- Aliases
 
 ##------ Werkstatt Aliases
 
-if [ -f /usr/local/share/werkstatt/bash_aliases ]; then
-  . /usr/local/share/werkstatt/bash_aliases
+if [[ -f /usr/local/share/werkstatt/bash_aliases ]]; then
+  source /usr/local/share/werkstatt/bash_aliases
 fi
 
 ##------ User Aliases
 
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
+if [[ -f ~/.bash_aliases ]]; then
+  source ~/.bash_aliases
 fi
 
 #--- Completions
