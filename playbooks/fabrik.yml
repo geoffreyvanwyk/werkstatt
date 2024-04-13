@@ -1,0 +1,61 @@
+---
+- name: Fabrik
+  hosts: all
+
+  tasks:
+    - name: User - werker
+      block:
+        - name: Create user "werker" with administrative privileges
+          ansible.builtin.user:
+            name: werker
+            password: "{{ 'nullfehler' | password_hash }}"
+            groups:
+              # Members are allowed to executes commands as root.
+              - sudo
+              # Members are allowed to perform system monitoring tasks such as
+              # reading certain log files.
+              - adm
+              ##
+              # The following groups give members access to the respective
+              # devices.
+              #
+              # @link  https://wiki.ubuntu.com/Security/Privileges
+              ##
+              - audio
+              - cdrom
+              - dialout # Serial ports, such as for modems.
+              - dip # Internet connection.
+              - floppy
+              - netdev # Wireless and ethernet network devices.
+              - plugdev # Exteran storage devices.
+              - video
+
+        - name: Allow werker to use sudo without a password
+          community.general.sudoers:
+            name: werker-no-sudo-password
+            user: werker
+            commands: ALL
+            nopassword: true
+
+    - name: Windows Subsystem for Linux
+      block:
+        - name: Set werker as the default user
+          community.general.ini_file:
+            path: /etc/wsl.conf
+            section: user
+            option: default
+            value: werker
+
+        - name: Remove Windows executable paths
+          community.general.ini_file:
+            path: /etc/wsl.conf
+            section: interop
+            option: appendWindowsPath
+            value: false
+
+        - name: Enable systemd
+          community.general.ini_file:
+            path: /etc/wsl.conf
+            section: boot
+            option: systemd
+            value: true
