@@ -58,6 +58,16 @@ if [[ -f /usr/local/share/werkstatt/bash_paths ]]; then
     fi
   done
 fi
+
+###--------- User Executble Paths
+
+if [[ -f ~/.bash_paths ]]; then
+  for USER_ADDITIONAL_PATH in $(cat ~/.bash_paths); do
+    if [[ ! -z "$USER_ADDITIONAL_PATH" ]]; then
+      if [[ -d "$USER_ADDITIONAL_PATH" ]]; then
+        if [[ $PATH != *"$USER_ADDITIONAL_PATH"* ]]; then
+          export PATH=$USER_ADDITIONAL_PATH:$PATH
+        fi
       fi
     fi
   done
@@ -79,9 +89,6 @@ fi
 
 ##------ User Aliases
 
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
