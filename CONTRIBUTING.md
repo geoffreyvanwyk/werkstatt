@@ -2,14 +2,14 @@
 
 ## Build from Source Code
 
-To build Werkstatt from its source code, you will need two distributions, one
-acting as the Ansible _control node_ and the other as the Ansible
-_managed node_.
+To build Werkstatt from its source code, you will need two distributions:
+
+- one acting as the Ansible [_control node_](https://docs.ansible.com/ansible/latest/getting_started/index.html),
+- and the other as the Ansible _managed node_.
 
 The control node must have Ansible installed. The easiest way get set up with
-Ansible is to use an instance of Werkstatt; otherwise, instructions will be provided later in this guide. See the
-[Ansible documentation](https://docs.ansible.com/ansible/latest/installation_guide/index.html)
-for how to do that.
+Ansible is to use an instance of Werkstatt; otherwise, instructions will be
+provided later in this guide.
 
 The managed node is an instance of the base distribution
 (Ubuntu). The importation and preparation of the base distribution will be
@@ -22,12 +22,12 @@ described here firstly.
    support _.gz_ files.
 
 2. **Windows Terminal:** [Windows Terminal](https://aka.ms/terminal)
-   makes it easy to work with multiple WSL distributions and multiple Poweshell
-   sessions.
+   makes it easy to work with multiple WSL distributions and multiple
+   Powershell sessions.
 
 ### 2. Directories for Working with WSL
 
-Using Powershell (version 5+), create a set of directories that make it
+Using Powershell, create a set of directories that make it
 convenient to work with WSL distributions.
 
 ```powershell
@@ -38,14 +38,14 @@ New-Item -ItemType Directory -Path $HOME\WSL\Exports
 
 About the directories:
 
-- _$HOME\WSL\Distributions_ will contain the virtual hard disks of the
+- **_$HOME\WSL\Distributions_** will contain the virtual hard disks of the
   distributions.
-- _$HOME\WSL\Exports_ will contain the images of exported distributions.
+- **_$HOME\WSL\Exports_** will contain the images of exported distributions.
 
 ### 3. Import Base Distribution
 
-1. Using Powershell, download the official WSL compressed image for Ubuntu. The
-   file is approximately **230 MB** large.
+1. Using Powershell, download the latest official WSL compressed image for
+   Ubuntu. The file is approximately **230 MB** large.
 
    ```powershell
    Invoke-WebRequest `
@@ -83,7 +83,7 @@ About the directories:
 1.  In Powershell, connect to the _Fabrik_ distribution as the `root` user,
     automatically changing to the root user's home directory. It should take
     less than a minute to connect. You will be presented with an Ubuntu welcome
-    message (on first start-up) and the Bash prompt.
+    message and the Bash prompt.
 
     ```powershell
     wsl --distribution Fabrik --user root --cd /root
@@ -158,10 +158,10 @@ About the directories:
     information on how to set up Ansible, see the
     [Ansible documentation](https://docs.ansible.com/ansible/latest/installation_guide/index.html)
 
-            ```shell
-            sudo apt --yes install python3-pip
-            pip install --requirement requirements.txt
-            ```
+    ```shell
+    sudo apt --yes install python3-pip
+    pip install --requirement requirements.txt
+    ```
 
 12. From the root of the Werkstatt repository, install the required Ansible roles and collections.
 
@@ -194,7 +194,8 @@ to get started fresh in the future.
    wsl --terminate Fabrik
    ```
 
-2. Create an image that captures Fabrik's current state.
+2. Create an image that captures Fabrik's current state. This will take a few
+   minutes and produce a file that is approximately **890 MB large**.
 
    ```powershell
    wsl --export Fabrik $HOME\WSL\Exports\fabrik.tar
@@ -235,7 +236,7 @@ to get started fresh in the future.
 3. Connect to the control node, then change directory to the root of the
    Werkstatt repository.
 
-4. Build Werkstatt within Fabrik by running the `main.yml` Ansible playbook.
+4. Build Werkstatt by running the `main.yml` Ansible playbook.
 
    ```shell
    ansible-playbook playbooks/main.yml
