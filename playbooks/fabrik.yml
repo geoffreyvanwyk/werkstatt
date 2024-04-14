@@ -10,7 +10,7 @@
             name: werker
             password: "{{ 'nullfehler' | password_hash }}"
             groups:
-              # Members are allowed to executes commands as root.
+              # Members are allowed to execute commands as root.
               - sudo
               # Members are allowed to perform system monitoring tasks such as
               # reading certain log files.
@@ -27,8 +27,9 @@
               - dip # Internet connection.
               - floppy
               - netdev # Wireless and ethernet network devices.
-              - plugdev # Exteran storage devices.
+              - plugdev # External storage devices.
               - video
+            shell: /usr/bin/bash
 
         - name: Allow werker to use sudo without a password
           community.general.sudoers:
