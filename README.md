@@ -1,7 +1,7 @@
 # Werkstatt
 
 > A [WSL](https://aka.ms/wsl) distribution based on
-> [Ubuntu](https://ubuntu.com), packed with the best programmes the
+> [Ubuntu 22.04](https://ubuntu.com), packed with the best programmes the
 > command-line has to offer.
 
 ## Installation
@@ -34,7 +34,9 @@
    ```
 
 2. Extract the image file from the compressed archive. The file _werkstatt.tar_
-   will appear in the _Exports_ directory.
+   will appear in the _Exports_ directory. (`Expand-Archive` is available from
+   Powershell 5 onwards. If you do not have it available, extract using File
+   Explorer.)
 
    ```powershell
    Expand-Archive `
