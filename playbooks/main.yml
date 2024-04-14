@@ -1,3 +1,30 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that runs all the subsidiary playbooks in the correct
+# sequence.
+#
+# This playbook should only be run in the target distribution (Fabrik) has
+# already been prepared with the manual steps described in CONTRIBUTING and
+# with the fabrik.yml playbook.
+#
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+# @see        {@link https://starship.rs} Starship
+###
 ---
 - name: Main
   hosts: all
@@ -14,35 +41,51 @@
       become: true
       ansible.builtin.apt:
         package:
+          ##
           # build-essential contains list of packages necessary for building
           # Debian packages, such as C & C++ compilers. These are also
           # necessary for building other packages, e.g. Rust packages with
           # Cargo.
+          #
+          # @see  {@link https://packages.ubuntu.com/jammy/build-essential}
+          ##
           - build-essential
 
-- name: Werkstatt Development Environment
-  ansible.builtin.import_playbook: ./werkstatt.yml
+    - name: Create user configuration directory
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.config"
+        state: directory
+        mode: u=rwX,go=rX
+
+    - name: Create Werkstatt resource directory
+      become: true
+      ansible.builtin.file:
+        path: /usr/local/share/werkstatt
+        state: directory
+        mode: u=rwX,go=rX
+
+- name: Starship - minimal, blazingly fast, infinitely customizable prompt
+  ansible.builtin.import_playbook: ./shellprompt_starship.yml
 
 - name: Bash - Bourne Again Shell
   ansible.builtin.import_playbook: ./shell_bash.yml
-
-- name: Rust Programming Language
-  ansible.builtin.import_playbook: ./lang_rust.yml
-  
-- name: Go Programming Language
-  ansible.builtin.import_playbook: ./lang_go.yml
+# - name: Rust Programming Language
+#   ansible.builtin.import_playbook: ./lang_rust.yml
+#
+# - name: Go Programming Language
+#   ansible.builtin.import_playbook: ./lang_go.yml
 
 # - name: Python Programming Language
 #   ansible.builtin.import_playbook: ./lang_python.yml
 
-- name: JavaScript Programming Language
-  ansible.builtin.import_playbook: ./lang_javascript.yml
-
-- name: Utility Programmes
-  ansible.builtin.import_playbook: ./utils.yml
-
-- name: Version Control with Git
-  ansible.builtin.import_playbook: ./version_control_git.yml
+# - name: JavaScript Programming Language
+#   ansible.builtin.import_playbook: ./lang_javascript.yml
+#
+# - name: Utility Programmes
+#   ansible.builtin.import_playbook: ./utils.yml
+#
+# - name: Version Control with Git
+#   ansible.builtin.import_playbook: ./version_control_git.yml
 
 # - name: Containerization with Docker
 #   ansible.builtin.import_playbook: ./containers_docker.yml
@@ -50,5 +93,5 @@
 # - name: Automation with Ansible
 #   ansible.builtin.import_playbook: ./automation_ansible.yml
 
-- name: Neovim Text Editor
-  ansible.builtin.import_playbook: ./editor_neovim.yml
+# - name: Neovim Text Editor
+#   ansible.builtin.import_playbook: ./editor_neovim.yml
