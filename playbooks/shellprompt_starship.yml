@@ -1,0 +1,82 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that installs the Starship shell prompt that supports a
+# variety of shells.
+#
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+# @see        {@link https://starship.rs} Starship
+###
+---
+- name: Starship - minimal, blazingly fast, infinitely customizable prompt
+  hosts: all
+
+  vars:
+    werkstatt_starship_version: 1.18.2
+
+  tasks:
+    - name: Is Starship installed?
+      ansible.builtin.stat:
+        path: /usr/local/bin/starship
+      register: werkstatt_stat_starship
+
+    - name: Display Starship version
+      when: werkstatt_stat_starship.stat.exists
+      ansible.builtin.shell:
+        executable: /usr/bin/bash
+        cmd: set -o pipefail && starship --version | head -n1 | cut -d' ' -f2
+      changed_when: false
+      register: werkstatt_current_starship_version
+
+    - name: Is Starship version outdated?
+      ansible.builtin.set_fact:
+        werkstatt_is_starship_outdated: "{{
+          not werkstatt_stat_starship.stat.exists
+          or
+          not (werkstatt_current_starship_version.stdout == werkstatt_starship_version) }}"
+
+    - name: Download and install Starship
+      when: werkstatt_is_starship_outdated
+      block:
+        - name: Download Starship installation script
+          ansible.builtin.get_url:
+            url: https://starship.rs/install.sh
+            dest: /tmp/starship_install.sh
+            mode: ugo=rwx
+
+        - name: Install Starship
+          become: true
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            chdir: /tmp
+            cmd: ./starship_install.sh --yes --version=v{{ werkstatt_starship_version }}
+            creates: /usr/local/bin/starship
+
+    - name: Delete Starship install script
+      ansible.builtin.file:
+        path: /tmp/starship_install.sh
+        state: absent
+
+    - name: Deploy Starship configuration files # noqa no-relative-paths
+      loop:
+        - starship_bash.toml
+        - starship_fish.toml
+      ansible.builtin.copy:
+        src: ../files/{{ item }}
+        dest: "{{ ansible_env.HOME }}/.config/{{ item }}"
+        force: true
+        mode: u=rw,go=r

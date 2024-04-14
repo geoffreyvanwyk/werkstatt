@@ -1,12 +1,12 @@
 # THIS FILE IS MANAGED BY WERKSTATT.
-# BECAUSE OF THE BLE.SH LINE EDITOR AND THE STARSHIP PROMPT.
-# PLEASE CREATE ~/.bash_myrc FOR PERSONAL CUSTOMIZATIONS.
-# THIS FILE WILL SOURCE ~/.bash_myrc.
+# PLEASE CREATE $HOME/.bash_myrc FOR PERSONAL CUSTOMIZATIONS.
+# THIS FILE WILL SOURCE $HOME/.bash_myrc.
 
-#--- ble.sh Line Editor - First Step of Activation
-
-# Werkstatt - line below must the first line of code.
- [[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --attach=none
+# If not running interactively, don't do anything
+case $- in
+*i*) ;;
+*) return ;;
+esac
 
 #--- Globbing
 
@@ -39,14 +39,14 @@ shopt -s checkwinsize
 
 ##------ Werkstatt Environment Variables
 
-if [ -f /usr/local/share/werkstatt/bash_env ]; then
-  source /usr/local/share/werkstatt/bash_env
+if [[ -f /usr/local/share/werkstatt/bash_env ]]; then
+	source /usr/local/share/werkstatt/bash_env
 fi
 
 ##------ User Environment Variables
 
-if [ -f ~/.bash_env ]; then
-  source ~/.bash_env
+if [[ -f "$HOME/.bash_env" ]]; then
+	source "$HOME/.bash_env"
 fi
 
 ##------ Executable Path
@@ -54,35 +54,27 @@ fi
 ###--------- Werkstatt Executble Paths
 
 if [[ -f /usr/local/share/werkstatt/bash_paths ]]; then
-  for WERKSTATT_ADDITIONAL_PATH in $(\cat /usr/local/share/werkstatt/bash_paths); do
-    if [[ ! -z "$WERKSTATT_ADDITIONAL_PATH" ]]; then
-      if [[ -d "$WERKSTATT_ADDITIONAL_PATH" ]]; then
-        if [[ $PATH != *"$WERKSTATT_ADDITIONAL_PATH"* ]]; then
-          export PATH=$WERKSTATT_ADDITIONAL_PATH:$PATH
-        fi
-      fi
-    fi
-  done
+	while IFS="" read -r WERKSTATT_ADDITIONAL_PATH || [[ -n "$WERKSTATT_ADDITIONAL_PATH" ]]; do
+		if [[ -n "$WERKSTATT_ADDITIONAL_PATH" ]] && [[ -d "$WERKSTATT_ADDITIONAL_PATH" ]] && [[ $PATH != *"$WERKSTATT_ADDITIONAL_PATH"* ]]; then
+			export PATH=$WERKSTATT_ADDITIONAL_PATH:$PATH
+		fi
+	done </usr/local/share/werkstatt/bash_paths
 fi
 
 ###--------- User Executble Paths
 
-if [[ -f ~/.bash_paths ]]; then
-  for USER_ADDITIONAL_PATH in $(\cat ~/.bash_paths); do
-    if [[ ! -z "$USER_ADDITIONAL_PATH" ]]; then
-      if [[ -d "$USER_ADDITIONAL_PATH" ]]; then
-        if [[ $PATH != *"$USER_ADDITIONAL_PATH"* ]]; then
-          export PATH=$USER_ADDITIONAL_PATH:$PATH
-        fi
-      fi
-    fi
-  done
+if [[ -f "$HOME/.bash_paths" ]]; then
+	while IFS="" read -r USER_ADDITIONAL_PATH || [[ -n "$USER_ADDITIONAL_PATH" ]]; do
+		if [[ -n "$USER_ADDITIONAL_PATH" ]] && [[ -d "$USER_ADDITIONAL_PATH" ]] && [[ $PATH != *"$USER_ADDITIONAL_PATH"* ]]; then
+			export PATH=$USER_ADDITIONAL_PATH:$PATH
+		fi
+	done <"$HOME/.bash_paths"
 fi
 
 #--- Plugins
 
 if [[ -f /usr/local/share/werkstatt/bash_plugins ]]; then
-  source /usr/local/share/werkstatt/bash_plugins
+	source /usr/local/share/werkstatt/bash_plugins
 fi
 
 #--- Aliases
@@ -90,13 +82,13 @@ fi
 ##------ Werkstatt Aliases
 
 if [[ -f /usr/local/share/werkstatt/bash_aliases ]]; then
-  source /usr/local/share/werkstatt/bash_aliases
+	source /usr/local/share/werkstatt/bash_aliases
 fi
 
 ##------ User Aliases
 
-if [[ -f ~/.bash_aliases ]]; then
-  source ~/.bash_aliases
+if [[ -f $HOME/.bash_aliases ]]; then
+	source $HOME/.bash_aliases
 fi
 
 #--- Completions
@@ -105,11 +97,11 @@ fi
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
+	if [[ -f /usr/share/bash-completion/bash_completion ]]; then
+		source /usr/share/bash-completion/bash_completion
+	elif [[ -f /etc/bash_completion ]]; then
+		source /etc/bash_completion
+	fi
 fi
 
 #--- Utility Programmes
@@ -117,35 +109,34 @@ fi
 ##------ chroot
 
 # Set variable identifying the chroot you work in (used in the prompt below).
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
+if [[ -z "${debian_chroot:-}" ]] && [[ -r /etc/debian_chroot ]]; then
+	debian_chroot=$(cat /etc/debian_chroot)
 fi
 
 ##------ less
 
 # Make less more friendly for non-text input files, see lesspipe(1).
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+[[ -x /usr/bin/lesspipe ]] && eval "$(SHELL=/bin/sh lesspipe)"
 
 ##------ ls
 
 # Enable color support of ls, dir, grep and variants.
-if [ -x /usr/bin/dircolors ]; then
-    # dircolors sets the LS_COLORS environment variable then exports it.
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+if [[ -x /usr/bin/dircolors ]]; then
+	# dircolors sets the LS_COLORS environment variable then exports it.
+	test -r "$HOME/.dircolors" && eval "$(dircolors -b $HOME/.dircolors)" || eval "$(dircolors -b)"
 fi
 
 #--- User Configuration
 
 # Write your bash customizations in the file below.
-if [[ -f ~/.bash_myrc ]]; then
-    . ~/.bash_myrc
+if [[ -f "$HOME/.bash_myrc" ]]; then
+	source "$HOME/.bash_myrc"
 fi
+
+#--- Line Editing Mode
+
+set -o vi
 
 #--- Prompt
 
 eval "$(starship init bash)"
-
-#--- ble.sh Line Editor - Second Step of Activation
-
-[[ ${BLE_VERSION-} ]] && ble-attach
-# Werkstatt - above line must be the last line of code.

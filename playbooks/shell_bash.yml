@@ -1,3 +1,25 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that configures the Bash shell.
+#
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+# @see        {@link https://www.gnu.org/software/bash/} Bash - GNU Project - Free Software Foundation
+###
 ---
 - name: Bash - Bourne Again Shell
   hosts: all
@@ -7,6 +29,7 @@
       vars:
         bash_envs_to_add:
           XDG_CONFIG_HOME: $HOME/.config
+          STARSHIP_CONFIG: $HOME/.config/starship_bash.toml
       ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
 
     - name: Add bash aliases
@@ -20,7 +43,7 @@
       ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
 
       # This file is for the user to copy in case he messes up ~/.bashrc.
-    - name: Deploy bash run-commands # noqa no-relative-paths
+    - name: Deploy bash run-commands file # noqa no-relative-paths
       become: true
       ansible.builtin.copy:
         src: ../files/bashrc
@@ -33,33 +56,16 @@
         dest: "{{ ansible_env.HOME }}/.bashrc"
         mode: u=rw,go=r
 
-- name: Starship - minimal, blazingly fast, infinitely customizable prompt
-  hosts: all
+      # This file is for the user to copy in case he messes up ~/.inputrc.
+    - name: Deploy GNU Readline run-commands file # noqa no-relative-paths
+      become: true
+      ansible.builtin.copy:
+        src: ../files/inputrc
+        dest: /usr/local/share/werkstatt/inputrc
+        mode: u=rw,go=r
 
-  tasks:
-    - name: Is Starship installed?
-      ansible.builtin.stat:
-        path: /usr/local/bin/starship
-      register: werkstatt_stat_starship
-
-    - name: Download and install Starship
-      when: not werkstatt_stat_starship.stat.exists
-      block:
-        - name: Download Starship installation script
-          ansible.builtin.get_url:
-            url: https://starship.rs/install.sh
-            dest: /tmp/starship_install.sh
-            mode: ugo=rwx
-
-        - name: Install Starship
-          become: true
-          ansible.builtin.shell:
-            executable: /usr/bin/bash
-            chdir: /tmp
-            cmd: ./starship_install.sh --yes
-            creates: /usr/local/bin/starship
-
-    - name: Delete Starship install script
-      ansible.builtin.file:
-        path: /tmp/starship_install.sh
-        state: absent
+    - name: Deploy GNU Readline run-commands file for user # noqa no-relative-paths
+      ansible.builtin.copy:
+        src: ../files/inputrc
+        dest: "{{ ansible_env.HOME }}/.inputrc"
+        mode: u=rw,go=r
