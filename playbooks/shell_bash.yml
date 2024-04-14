@@ -27,70 +27,11 @@
         dest: /usr/local/share/werkstatt/bashrc
         mode: u=rw,go=r
 
-    - name: Deploy bash run-commands file for user  # noqa no-relative-paths
+    - name: Deploy bash run-commands file for user # noqa no-relative-paths
       ansible.builtin.copy:
         src: ../files/bashrc
         dest: "{{ ansible_env.HOME }}/.bashrc"
         mode: u=rw,go=r
-
-- name: Ble.sh - a modern line editor for bash
-  hosts: all
-
-  vars:
-    werkstatt_blesh_version: 0.4.0-devel3
-
-  tasks:
-    - name: Is ble.sh already installed?
-      ansible.builtin.stat:
-        path: ~/.local/share/blesh/ble.sh
-      register: werkstatt_stat_blesh
-
-    - name: Display current ble.sh version
-      when: werkstatt_stat_blesh.stat.exists
-      ansible.builtin.shell:
-        executable: /usr/bin/bash
-        chdir: ~/.local/share/blesh
-        cmd: set -o pipefail && bash ble.sh --version | sed 's/^.\+version //' | sed 's/+.\+//'
-      changed_when: false
-      register: werkstatt_display_current_blesh_version
-
-    - name: Is ble.sh version outdated?
-      ansible.builtin.set_fact:
-        werkstatt_is_blesh_outdated: "{{
-          not werkstatt_stat_blesh.stat.exists
-          or
-          not (werkstatt_display_current_blesh_version.stdout == werkstatt_blesh_version) }}"
-
-    - name: Download, extract, then install ble.sh
-      when: werkstatt_is_blesh_outdated
-      block:
-        - name: Download ble.sh archive
-          ansible.builtin.get_url:
-            url: https://github.com/akinomyoga/ble.sh/releases/download/v{{ werkstatt_blesh_version }}/ble-{{ werkstatt_blesh_version }}.tar.xz
-            dest: /tmp/blesh.tar.xz
-            mode: ugo=rw
-
-        - name: Create parent of ble.sh installation directory
-          ansible.builtin.file:
-            path: ~/.local/share/
-            state: directory
-            mode: u=rwX,go=rX
-
-        - name: Extract ble.sh archive
-          ansible.builtin.unarchive:
-            src: /tmp/blesh.tar.xz
-            remote_src: true
-            dest: ~/.local/share/
-
-        - name: Rename ble.sh directory
-          ansible.builtin.command:
-            cmd: mv ~/.local/share/ble-{{ werkstatt_blesh_version }} ~/.local/share/blesh
-            creates: ~/.local/share/blesh
-
-    - name: Delete ble.sh archive
-      ansible.builtin.file:
-        path: /tmp/blesh.tar.xz
-        state: absent
 
 - name: Starship - minimal, blazingly fast, infinitely customizable prompt
   hosts: all
