@@ -2,6 +2,12 @@
 - name: Rust Programming Language
   hosts: all
   tasks:
+    - name: Install Ubuntu packages needed to compile Rust programmes
+      become: true
+      ansible.builtin.apt:
+        package:
+          - build-essential
+
     - name: Is Rust installed?
       ansible.builtin.stat:
         path: "{{ ansible_env.HOME }}/.cargo/bin/rustc"
