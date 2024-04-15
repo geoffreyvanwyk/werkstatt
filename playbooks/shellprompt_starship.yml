@@ -16,10 +16,10 @@
 # Ansible playbook that installs the Starship shell prompt that supports a
 # variety of shells.
 #
+# @see        {@link https://starship.rs} Starship
 # @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
 # @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
 # @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
-# @see        {@link https://starship.rs} Starship
 ###
 ---
 - name: Starship - minimal, blazingly fast, infinitely customizable prompt
@@ -77,12 +77,12 @@
         - starship_fish.toml
       ansible.builtin.copy:
         src: ../files/{{ item }}
-        dest: "{{ ansible_env.HOME }}/.config/{{ item }}"
+        dest: "{{ werkstatt_xdg_config_home }}/{{ item }}"
         force: true
         mode: u=rw,go=r
 
-    - name: Add bash environment variables for Starship
+    - name: Add Bash environment variables for Starship
       vars:
         bash_envs_to_add:
-          STARSHIP_CONFIG: $HOME/.config/starship_bash.toml
+          STARSHIP_CONFIG: "{{ werkstatt_xdg_config_home }}/starship_bash.toml"
       ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
