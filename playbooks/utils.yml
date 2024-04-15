@@ -205,9 +205,15 @@
       ansible.builtin.apt:
         deb: https://github.com/ClementTsang/bottom/releases/download/{{ werkstatt_bottom_version }}/bottom_{{ werkstatt_bottom_version }}_amd64.deb
 
-    # TODO Install httpie
-    # Website: www.httpie.io
-    # - name: Superior HTTP client - httpie
+    ##
+    # httpie is a superior HTTP client.
+    #
+    # @see  {@link https://www.httpie.io}
+    ##
+    - name: HTTPIE
+      vars:
+        pipx_app_to_install: httpie
+      ansible.builtin.include_tasks: ../tasks/pipx_install_app.yml
 
 ##
 # gdu is a fast disk usage analyzer with a console interface, written in
