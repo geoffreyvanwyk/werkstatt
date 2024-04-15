@@ -1,0 +1,12 @@
+---
+- name: List out all packages installed with pipx
+  ansible.builtin.command:
+    cmd: "{{ werkstatt_pipx }} list"
+  changed_when: false
+  register: werkstatt_list_of_pipx_packages
+
+- name: Install application with pipx
+  when: not pipx_app_to_install in werkstatt_list_of_pipx_packages.stdout
+  ansible.builtin.command:
+    cmd: "{{ werkstatt_pipx }} install {{ pipx_app_to_install }}"
+  changed_when: not pipx_app_to_install in werkstatt_list_of_pipx_packages.stdout

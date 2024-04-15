@@ -92,7 +92,7 @@
 - name: Starship - minimal, blazingly fast, infinitely customizable shell prompt
   ansible.builtin.import_playbook: ./shellprompt_starship.yml
 
-- name: Bash - Bourne Again Shell
+- name: BASH - Bourne Again Shell
   ansible.builtin.import_playbook: ./shell_bash.yml
 
 - name: Python Programming Language
