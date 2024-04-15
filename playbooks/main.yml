@@ -99,6 +99,9 @@
 - name: Python Programming Language
   ansible.builtin.import_playbook: ./lang_python.yml
 
+# - name: Ruby Programming Language
+#   ansible.builtin.import_playbook: ./lang_ruby.yml
+
 # - name: JavaScript Programming Language
 #   ansible.builtin.import_playbook: ./lang_javascript.yml
 
@@ -111,15 +114,17 @@
 - name: Go Programming Language
   ansible.builtin.import_playbook: ./lang_go.yml
 
+- name: Version Control with Git
+  ansible.builtin.import_playbook: ./versioncontrol_git.yml
+
+# - name: Tmux Multiplexer
+#   ansible.builtin.import_playbook: ./multiplexer_tmux.yml
+
 - name: Utility Programmes
   ansible.builtin.import_playbook: ./utils.yml
-#
-# - name: Version Control with Git
-#   ansible.builtin.import_playbook: ./version_control_git.yml
 
-# - name: Containerization with Docker
-#   ansible.builtin.import_playbook: ./containers_docker.yml
-#
+- name: Containerization with Docker
+  ansible.builtin.import_playbook: ./containers_docker.yml
 # - name: Automation with Ansible
 #   ansible.builtin.import_playbook: ./automation_ansible.yml
 

@@ -44,11 +44,13 @@
     - name: Add bash aliases
       vars:
         bash_aliases_to_add:
+          a: sudo apt
           dir: dir --color=auto
           egrep: egrep --color=auto
           fgrep: fgrep --color=auto
           grep: grep --color=auto
           ls: ls --color=auto
+          s: sudo service
           vdir: vdir --color=auto
       ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
 
