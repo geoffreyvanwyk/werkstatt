@@ -16,14 +16,13 @@
 # Ansible playbook that runs all the subsidiary playbooks in the correct
 # sequence.
 #
-# This playbook should only be run in the target distribution (Fabrik) has
-# already been prepared with the manual steps described in CONTRIBUTING and
+# This playbook should only be run if the target distribution (Fabrik) has
+# already been prepared with the manual steps described in CONTRIBUTING.md and
 # with the fabrik.yml playbook.
 #
 # @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
 # @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
 # @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
-# @see        {@link https://starship.rs} Starship
 ###
 ---
 - name: Main
@@ -37,28 +36,60 @@
         cache_valid_time: "{{ 60 * 60 * 24 * 7 }}" # 7 days in seconds
         upgrade: true
 
+    - name: Set facts about Werkstatt
+      ansible.builtin.set_fact:
+        werkstatt_data_dir: "{{ ansible_env.HOME }}/.local/share/werkstatt"
+        werkstatt_xdg_bin_home: "{{ ansible_env.HOME }}/.local/bin"
+        werkstatt_xdg_cache_home: "{{ ansible_env.HOME }}/.cache"
+        werkstatt_xdg_config_home: "{{ ansible_env.HOME }}/.config"
+        werkstatt_xdg_data_home: "{{ ansible_env.HOME }}/.local/share"
+        werkstatt_xdg_state_home: "{{ ansible_env.HOME }}/.local/state"
+
+    ##
+    # XDG Base Directories is a specification from the Free Desktop community of
+    # projects.
+    #
+    # @see  {@link https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html}
+    ##
     - name: Create XDG directories
       block:
+        - name: Create $XDG_BIN_HOME
+          ansible.builtin.file:
+            path: "{{ werkstatt_xdg_bin_home }}"
+            state: directory
+            mode: u=rwX,go=rX
+
+        - name: Create $XDG_CACHE_HOME
+          ansible.builtin.file:
+            path: "{{ werkstatt_xdg_cache_home }}"
+            state: directory
+            mode: u=rwX,go=rX
+
         - name: Create $XDG_CONFIG_HOME
           ansible.builtin.file:
-            path: "{{ ansible_env.HOME }}/.config"
+            path: "{{ werkstatt_xdg_config_home }}"
             state: directory
             mode: u=rwX,go=rX
 
         - name: Create $XDG_DATA_HOME
           ansible.builtin.file:
-            path: "{{ ansible_env.HOME }}/.local/share"
+            path: "{{ werkstatt_xdg_data_home }}"
             state: directory
             mode: u=rwX,go=rX
 
-    - name: Create Werkstatt resource directory
-      become: true
+        - name: Create $XDG_STATE_HOME
+          ansible.builtin.file:
+            path: "{{ werkstatt_xdg_state_home }}"
+            state: directory
+            mode: u=rwX,go=rX
+
+    - name: Create Werkstatt project data directory
       ansible.builtin.file:
-        path: /usr/local/share/werkstatt
+        path: "{{ werkstatt_data_dir }}"
         state: directory
         mode: u=rwX,go=rX
 
-- name: Starship - minimal, blazingly fast, infinitely customizable prompt
+- name: Starship - minimal, blazingly fast, infinitely customizable shell prompt
   ansible.builtin.import_playbook: ./shellprompt_starship.yml
 
 - name: Bash - Bourne Again Shell
