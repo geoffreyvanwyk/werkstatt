@@ -195,16 +195,11 @@
         name:
           - pipx
 
-    - name: Are pipx applications on $PATH?
-      ansible.builtin.set_fact:
-        werkstatt_is_pipx_on_path: "{{
-          ansible_env.PATH is search(ansible_env.HOME + '/.local/bin') }}"
-
-    - name: Ensure that applications installed with pipx are on $PATH
-      when: not werkstatt_is_pipx_on_path
-      ansible.builtin.command:
-        cmd: "{{ werkstatt_python }} -m pipx ensurepath"
-      changed_when: not werkstatt_is_pipx_on_path
+    - name: Add pipx applications to bash $PATH
+      vars:
+        bash_paths_to_add:
+          - "{{ ansible_env.HOME }}/.local/bin"
+      ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml
 
     - name: List out all packages installed with pipx
       ansible.builtin.command:
@@ -215,10 +210,41 @@
     ##
     # bpython is a fancy interface to the Python interactive interpreter.
     #
-    # @link  https://bpython-interpreter.org/
+    # @see  {@link https://bpython-interpreter.org/}
     ##
     - name: A fancy interface to the Python interactive interpreter - bpython
       when: not 'bpython' in werkstatt_list_of_pipx_packages.stdout
       ansible.builtin.command:
         cmd: "{{ werkstatt_python }} -m pipx install bpython"
       changed_when: not 'bpython' in werkstatt_list_of_pipx_packages.stdout
+
+    ##
+    # Poetry is a tool for dependency management and packaging in Python. It
+    # allows you to declare the libraries your project depends on and it will
+    # manage (install/update) them for you. Poetry offers a lockfile to
+    # ensure repeatable installs, and can build your project for
+    # distribution.
+    #
+    # @see  {@link https://python-poetry.org}
+    ##
+    - name: Python packaging and dependency management made easy - poetry
+      block:
+        - name: Install poetry
+          when: not 'poetry' in werkstatt_list_of_pipx_packages.stdout
+          ansible.builtin.command:
+            cmd: "{{ werkstatt_python }} -m pipx install poetry"
+          changed_when: not 'poetry' in werkstatt_list_of_pipx_packages.stdout
+
+        - name: Has poetry completions for bash been deployed?
+          ansible.builtin.stat:
+            path: "{{ ansible_env.HOME }}/.local/bash-completion/completions/poetry"
+          register: werkstatt_stat_poetry_bash_completions
+
+        - name: Add bash completions
+          when: not werkstatt_stat_poetry_bash_completions.stat.exists
+          ansible.builtin.shell:
+            cmd: >-
+              {{ ansible_env.HOME }}/.local/bin/poetry completions bash
+              >
+              {{ ansible_env.HOME }}/.local/share/bash-completion/completions/poetry
+          changed_when: not werkstatt_stat_poetry_bash_completions.stat.exists

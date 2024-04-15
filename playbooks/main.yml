@@ -37,11 +37,19 @@
         cache_valid_time: "{{ 60 * 60 * 24 * 7 }}" # 7 days in seconds
         upgrade: true
 
-    - name: Create user configuration directory
-      ansible.builtin.file:
-        path: "{{ ansible_env.HOME }}/.config"
-        state: directory
-        mode: u=rwX,go=rX
+    - name: Create XDG directories
+      block:
+        - name: Create $XDG_CONFIG_HOME
+          ansible.builtin.file:
+            path: "{{ ansible_env.HOME }}/.config"
+            state: directory
+            mode: u=rwX,go=rX
+
+        - name: Create $XDG_DATA_HOME
+          ansible.builtin.file:
+            path: "{{ ansible_env.HOME }}/.local/share"
+            state: directory
+            mode: u=rwX,go=rX
 
     - name: Create Werkstatt resource directory
       become: true

@@ -29,6 +29,7 @@
       vars:
         bash_envs_to_add:
           XDG_CONFIG_HOME: $HOME/.config
+          XDG_DATA_HOME: $HOME/.local/share
       ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
 
     - name: Add bash aliases
@@ -41,6 +42,12 @@
           ls: ls --color=auto
           vdir: vdir --color=auto
       ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+
+    - name: Create bash completions directory
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.local/share/bash-completion/completions"
+        state: directory
+        mode: u=rwX,go=rX
 
       # This file is for the user to copy in case he messes up ~/.bashrc.
     - name: Deploy bash run-commands file # noqa no-relative-paths
