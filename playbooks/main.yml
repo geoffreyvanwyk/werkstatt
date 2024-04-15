@@ -100,15 +100,14 @@
 
 - name: Rust Programming Language
   ansible.builtin.import_playbook: ./lang_rust.yml
-#
-# - name: Go Programming Language
-#   ansible.builtin.import_playbook: ./lang_go.yml
 
+- name: Go Programming Language
+  ansible.builtin.import_playbook: ./lang_go.yml
 # - name: JavaScript Programming Language
 #   ansible.builtin.import_playbook: ./lang_javascript.yml
 #
-# - name: Utility Programmes
-#   ansible.builtin.import_playbook: ./utils.yml
+- name: Utility Programmes
+  ansible.builtin.import_playbook: ./utils.yml
 #
 # - name: Version Control with Git
 #   ansible.builtin.import_playbook: ./version_control_git.yml

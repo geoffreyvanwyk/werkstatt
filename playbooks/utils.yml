@@ -1,9 +1,36 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that installs utilities, programmes that make it easier to
+# use the operating system.
+#
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+###
 ---
 - name: Utility Programmes
   hosts: all
 
   tasks:
-    - name: A modern replacement for ls - eza
+    ##
+    # eza is a modern, maintained replacement for ls
+    #
+    # @see  {@link https://eza.rocks}
+    ##
+    - name: EZA
       block:
         - name: Install GNU Privacy Guard
           become: true
@@ -61,7 +88,7 @@
             package: eza
             update_cache: true
 
-        - name: Add aliases for eza
+        - name: Add bash aliases for eza
           vars:
             bash_aliases_to_add:
               l: eza --icons
@@ -75,35 +102,32 @@
               lta: eza --tree --all --icons
           ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
 
-    - name: A cat clone with wings - bat
-      block:
-        - name: Install bat
-          become: yes
-          ansible.builtin.apt:
-            deb: https://github.com/sharkdp/bat/releases/download/v0.24.0/bat-musl_0.24.0_amd64.deb
+    ##
+    # bat is a cat clone with wings.
+    #
+    # @see  {@link https://github.com/sharkdp/bat}
+    ##
+    - name: BAT
+      become: yes
+      ansible.builtin.apt:
+        deb: https://github.com/sharkdp/bat/releases/download/v0.24.0/bat-musl_0.24.0_amd64.deb
 
-        - name: Add aliases for bat
-          vars:
-            bash_aliases_to_add:
-              cat: bat
-              catp: bat --plain
-              catpp: bat --plain --paging=never
-          ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+    ##
+    # fd is a simple, fast and user-friendly alternative to 'find'.
+    #
+    # @see  {@link https://github.com/sharkdp/fd}
+    ##
+    - name: FD
+      become: yes
+      ansible.builtin.apt:
+        deb: https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-musl_9.0.0_amd64.deb
 
-    - name: Simple, fast, user-friendly find - fd
-      block:
-        - name: Install fd
-          become: yes
-          ansible.builtin.apt:
-            deb: https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-musl_9.0.0_amd64.deb
-
-        - name: Add aliases for fd
-          vars:
-            bash_aliases_to_add:
-              find: fd
-          ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
-
-    - name: Command-line fuzzy finder - fzf
+    ##
+    # fzf is a command-line fuzzy finder.
+    #
+    # @see  {@link https://github.com/junegunn/fzf}
+    ##
+    - name: FZF
       block:
         - name: Make directory for fzf
           become: true
@@ -119,7 +143,7 @@
             dest: /opt/fzf
             version: 0.49.0
 
-        - name: Install Fuzzy Finder
+        - name: Install fzf
           become: true
           ansible.builtin.shell:
             executable: /usr/bin/bash
@@ -139,7 +163,12 @@
               - eval "$(fzf --bash)"
           ansible.builtin.include_tasks: ../tasks/bash_add_plugins.yml
 
-    - name: A faster grep - ripgrep
+    ##
+    # ripgrep is a faster grep
+    #
+    # @see  {@link https://github.com/BurntSushi/ripgrep}
+    ##
+    - name: RIPGREP
       block:
         - name: Create directory for ripgrep source code
           become: true
@@ -161,11 +190,15 @@
           when: werkstatt_clone_ripgrep.changed
           ansible.builtin.command:
             chdir: /opt/ripgrep
-            cmd: cargo install --path . --features pcre2
+            cmd: "{{ werkstatt_cargo }} install --path . --features pcre2"
           changed_when: true
 
-    # Run with command: btm
-    - name: Bottom - a superior top
+    ##
+    # bottom, run with command `btm`, is a superior top.
+    #
+    # @see  {@link https://github.com/ClementTsang/bottom}
+    ##
+    - name: BOTTOM
       become: true
       vars:
         werkstatt_bottom_version: 0.9.6
@@ -176,7 +209,13 @@
     # Website: www.httpie.io
     # - name: Superior HTTP client - httpie
 
-- name: A faster du, with terminal UI - gdu
+##
+# gdu is a fast disk usage analyzer with a console interface, written in
+# Go.
+#
+# @see  {@link https://github.com/dundee/gdu}
+##
+- name: GDU
   hosts: all
 
   vars:
@@ -188,20 +227,20 @@
         path: /usr/local/bin/gdu
       register: werkstatt_stat_gdu
 
-    - name: Display current gdu version
+    - name: Obtain current gdu version
       when: werkstatt_stat_gdu.stat.exists
       ansible.builtin.shell:
         executable: /usr/bin/bash
         cmd: set -o pipefail && gdu --version | head -n1 | sed 's/Version:\s\+//'
       changed_when: false
-      register: werkstatt_display_current_gdu_version
+      register: werkstatt_current_gdu_version
 
     - name: Is gdu version outdated?
       ansible.builtin.set_fact:
         werkstatt_is_gdu_outdated: "{{
           not werkstatt_stat_gdu.stat.exists
           or
-          not (werkstatt_display_current_gdu_version.stdout == werkstatt_gdu_version) }}"
+          not (werkstatt_current_gdu_version.stdout == werkstatt_gdu_version) }}"
 
     - name: Download, extract, then install gdu
       when: werkstatt_is_gdu_outdated
