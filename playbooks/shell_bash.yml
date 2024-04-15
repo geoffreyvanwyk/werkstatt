@@ -29,7 +29,6 @@
       vars:
         bash_envs_to_add:
           XDG_CONFIG_HOME: $HOME/.config
-          STARSHIP_CONFIG: $HOME/.config/starship_bash.toml
       ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
 
     - name: Add bash aliases
