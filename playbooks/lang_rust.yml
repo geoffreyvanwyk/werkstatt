@@ -61,3 +61,7 @@
         bash_paths_to_add:
           - "{{ ansible_env.HOME }}/.cargo/bin"
       ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml
+
+    - name: Set facts about Rust for Werkstatt
+      ansible.builtin.set_fact:
+        werkstatt_cargo: "{{ ansible_env.HOME }}/.cargo/bin/cargo"
