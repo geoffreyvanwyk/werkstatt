@@ -22,13 +22,13 @@
 # @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
 # @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
 # @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
-###
+##
 ---
 - name: Python Programming Language
   hosts: all
 
   tasks:
-    - name: Add Bash aliases for Python
+    - name: Add bash aliases for Python
       vars:
         bash_aliases_to_add:
           py: python
@@ -46,23 +46,25 @@
         werkstatt_poetry: "{{ werkstatt_xdg_bin_home }}/poetry"
 
 ##
-# Install PyEnv, then set the global Python version to the latest stable
+# pyenv provides simple Python version management.
+#
+# Installs pyenv, then set the global Python version to the latest stable
 # version.
 #
 # @see  {@link https://github.com/pyenv/pyenv}
 ##
-- name: PyEnv - Simple Python version management
+- name: PYENV
   hosts: all
 
   tasks:
-    - name: Installation of PyEnv
+    - name: Installation of pyenv
       block:
-        - name: Is PyEnv already installed?
+        - name: Is pyenv already installed?
           ansible.builtin.stat:
             path: "{{ werkstatt_pyenv }}"
           register: werkstatt_stat_pyenv
 
-        - name: Obtain current version of PyEnv
+        - name: Obtain current version of pyenv
           when: werkstatt_stat_pyenv.stat.exists
           ansible.builtin.shell:
             executable: /usr/bin/bash
@@ -70,17 +72,17 @@
           changed_when: false
           register: werkstatt_current_pyenv_version
 
-        - name: Is PyEnv version outdated?
+        - name: Is pyenv version outdated?
           ansible.builtin.set_fact:
             werkstatt_is_pyenv_outdated: "{{
               not werkstatt_stat_pyenv.stat.exists
               or
               not (werkstatt_current_pyenv_version.stdout == werkstatt_pyenv_version) }}"
 
-        - name: Download & Install PyEnv
+        - name: Download & Install pyenv
           when: werkstatt_is_pyenv_outdated
           block:
-            - name: Download Bash script for installing PyEnv
+            - name: Download bash script for installing pyenv
               ansible.builtin.get_url:
                 url: https://pyenv.run
                 dest: /tmp/pyenv-installer
@@ -100,21 +102,21 @@
             path: /tmp/pyenv-installer
             state: absent
 
-        - name: Integrate PyEnv with Bash
+        - name: Integrate pyenv with bash
           block:
-            - name: Add Bash environment variables for PyEnv
+            - name: Add bash environment variables for pyenv
               vars:
                 bash_envs_to_add:
                   PYENV_ROOT: "{{ werkstatt_pyenv_root }}"
               ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
 
-            - name: Add Bash executable path for PyEnv
+            - name: Add bash executable path for pyenv
               vars:
                 bash_paths_to_add:
                   - "{{ werkstatt_pyenv_root }}/bin"
               ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml
 
-            - name: Add Bash plugin for PyEnv
+            - name: Add bash plugin for pyenv
               vars:
                 bash_plugins_to_add:
                   - 'eval "$(pyenv init -)"'
@@ -181,7 +183,7 @@
           changed_when: not werkstatt_is_global_python_version_correct
 
 ##
-# Using PipX, install Python packages that would habitually be run as
+# Using pipx, install Python packages that would habitually be run as
 # stand-alone applications.
 #
 # @see  {@link https://pipx.pypa.io}
@@ -190,20 +192,14 @@
   hosts: all
 
   tasks:
-    - name: Install PipX
+    - name: Install pipx
       ansible.builtin.pip:
         executable: "{{ werkstatt_pip }}"
         name:
           - pipx
 
-    - name: List out all packages installed with PipX
-      ansible.builtin.command:
-        cmd: "{{ werkstatt_pipx }} list"
-      changed_when: false
-      register: werkstatt_list_of_pipx_packages
-
     ##
-    # Bpython is a fancy interface to the Python interactive interpreter.
+    # bpython is a fancy interface to the Python interactive interpreter.
     #
     # The "b" seems to stand for "Bob", because the original creator appears to
     # be Robert Anthony Farrel ("Bob" being a contraction of "Robert") based
@@ -212,43 +208,41 @@
     #
     # @see  {@link https://bpython-interpreter.org/}
     ##
-    - name: Bpython - A fancy interface to the Python interactive interpreter
+    - name: BPYTHON
       block:
-        - name: Install Bpython
-          when: not 'bpython' in werkstatt_list_of_pipx_packages.stdout
-          ansible.builtin.command:
-            cmd: "{{ werkstatt_pipx }} install bpython"
-          changed_when: not 'bpython' in werkstatt_list_of_pipx_packages.stdout
+        - name: Install bpython
+          vars:
+            pipx_app_to_install: bpython
+          ansible.builtin.include_tasks: ../tasks/pipx_install_app.yml
 
-        - name: Add Bash aliases for Bpython
+        - name: Add bash aliases for bpython
           vars:
             bash_aliases_to_add:
               bpy: bpython
           ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
 
     ##
-    # Poetry is a tool for dependency management and packaging in Python. It
+    # poetry is a tool for dependency management and packaging in Python. It
     # allows you to declare the libraries your project depends on and it will
-    # manage (install/update) them for you. Poetry offers a lockfile to
+    # manage (install/update) them for you. poetry offers a lockfile to
     # ensure repeatable installs, and can build your project for
     # distribution.
     #
     # @see  {@link https://python-poetry.org}
     ##
-    - name: Poetry - Python packaging and dependency management made easy
+    - name: POETRY
       block:
-        - name: Install Poetry
-          when: not 'poetry' in werkstatt_list_of_pipx_packages.stdout
-          ansible.builtin.command:
-            cmd: "{{ werkstatt_pipx }} install poetry"
-          changed_when: not 'poetry' in werkstatt_list_of_pipx_packages.stdout
+        - name: Install poetry
+          vars:
+            pipx_app_to_install: poetry
+          ansible.builtin.include_tasks: ../tasks/pipx_install_app.yml
 
-        - name: Has poetry completions for Bash been deployed?
+        - name: Has poetry completions for bash been deployed?
           ansible.builtin.stat:
             path: "{{ werkstatt_xdg_data_home }}/bash-completion/completions/poetry"
           register: werkstatt_stat_poetry_bash_completions
 
-        - name: Add Bash completions for Poetry
+        - name: Add bash completions for poetry
           when: not werkstatt_stat_poetry_bash_completions.stat.exists
           ansible.builtin.shell:
             cmd: >-

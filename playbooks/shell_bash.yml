@@ -13,33 +13,35 @@
 # Werkstatt. If not, see <https://www.gnu.org/licenses/>.
 
 ##
-# Ansible playbook that configures the Bash shell.
+# Ansible playbook that configures the bash shell.
 #
 # @see        {@link https://www.gnu.org/software/bash/} Bash - GNU Project - Free Software Foundation
 # @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
 # @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
 # @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
-###
+##
 ---
-- name: Bash - Bourne Again Shell
+- name: BASH - Bourne Again Shell
   hosts: all
 
   tasks:
-    - name: Add Bash environment variables
+    - name: Add bash environment variables
       vars:
         bash_envs_to_add:
           XDG_BIN_HOME: "{{ werkstatt_xdg_bin_home }}"
+          XDG_CACHE_HOME: "{{ werkstatt_xdg_cache_home }}"
           XDG_CONFIG_HOME: "{{ werkstatt_xdg_config_home }}"
           XDG_DATA_HOME: "{{ werkstatt_xdg_data_home }}"
+          XDG_STATE_HOME: "{{ werkstatt_xdg_state_home }}"
       ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
 
-    - name: Add directory paths to Bash $PATH
+    - name: Add directory paths to bash $PATH
       vars:
         bash_paths_to_add:
           - "{{ werkstatt_xdg_bin_home }}"
       ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml
 
-    - name: Add Bash aliases
+    - name: Add bash aliases
       vars:
         bash_aliases_to_add:
           dir: dir --color=auto
@@ -50,20 +52,20 @@
           vdir: vdir --color=auto
       ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
 
-    - name: Create Bash completions directory
+    - name: Create bash completions directory
       ansible.builtin.file:
         path: "{{ werkstatt_xdg_data_home }}/bash-completion/completions"
         state: directory
         mode: u=rwX,go=rX
 
       # This file is for the user to copy in case he messes up ~/.bashrc.
-    - name: Deploy Bash run-commands file # noqa no-relative-paths
+    - name: Deploy bash run-commands file # noqa no-relative-paths
       ansible.builtin.copy:
         src: ../files/bashrc
         dest: "{{ werkstatt_data_dir }}/bashrc"
         mode: u=rw,go=r
 
-    - name: Deploy Bash run-commands file for user # noqa no-relative-paths
+    - name: Deploy bash run-commands file for user # noqa no-relative-paths
       ansible.builtin.copy:
         src: ../files/bashrc
         dest: "{{ ansible_env.HOME }}/.bashrc"
