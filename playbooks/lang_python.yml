@@ -1,3 +1,28 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that installs programmes for working with the Python
+# programming language.
+#
+# Python comes preinstalled with Ubuntu.
+#
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+# @see        {@link https://www.python.org} Welcome to Python.org
+###
 ---
 - name: Python Programming Language
   hosts: all
@@ -9,65 +34,205 @@
           py: python
       ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
 
-    - name: Install Debian packages for Python
-      become: true
-      ansible.builtin.apt:
-        package:
-          ##
-          # pip is the Python package installer. You can use it to install
-          # packages from the Python Package Index and other indexes.
-          #
-          # @link  https://pip.pypa.io/en/stable/
-          ##
-          - python3-pip
+##
+# Install pyenv then set the global Python version to the latest stable
+# version.
+#
+# @see  {@link https://github.com/pyenv/pyenv}
+##
+- name: Simple Python version management - pyenv
+  hosts: all
 
-          ##
-          # The venv module is part of the Python Standard Library. It supports
-          # creating lightweight “virtual environments”, each with their own
-          # independent set of Python packages installed in their site
-          # directories.
-          #
-          # It is a dependency for pipx.
-          #
-          # @link  https://docs.python.org/3/library/venv.html
-          ##
-          - python3-venv
+  vars:
+    werkstatt_pyenv_root: "{{ ansible_env.HOME }}/.pyenv"
+    werkstatt_pyenv_version: 2.4.0
+    werkstatt_python_version: 3.12.2
 
-    - name: Install Python packages
-      ansible.builtin.pip:
-        name:
-          ##
-          # pipx allows you to install Python packages that you’d habitually
-          # run as stand-alone applications, in isolated environments.
-          #
-          # @link  https://pipx.pypa.io
-          ##
-          - pipx
+  tasks:
+    - name: Installation of pyenv
+      block:
+        - name: Is pyenv already installed?
+          ansible.builtin.stat:
+            path: "{{ werkstatt_pyenv_root }}/bin/pyenv"
+          register: werkstatt_stat_pyenv
 
-    - name: Are pipx applications on $PATH?
-      ansible.builtin.set_fact:
-        werkstatt_is_pipx_on_path: "{{
-          ansible_env.PATH is search(ansible_env.HOME + '/.local/bin') }}"
+        - name: Obtain current version of pyenv
+          when: werkstatt_stat_pyenv.stat.exists
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            chdir: "{{ werkstatt_pyenv_root }}/bin"
+            cmd: set -o pipefail && ./pyenv --version | cut -d' ' -f2
+          changed_when: false
+          register: werkstatt_current_pyenv_version
 
-    - name: Ensure that applications installed with pipx are on $PATH
-      when: not werkstatt_is_pipx_on_path
-      ansible.builtin.command:
-        cmd: python3 -m pipx ensurepath
-      changed_when: not werkstatt_is_pipx_on_path
+        - name: Is pyenv version outdated?
+          ansible.builtin.set_fact:
+            werkstatt_is_pyenv_outdated: "{{
+              not werkstatt_stat_pyenv.stat.exists
+              or
+              not (werkstatt_current_pyenv_version.stdout == werkstatt_pyenv_version) }}"
 
-    - name: List out all packages installed with pipx
-      ansible.builtin.command:
-        cmd: python3 -m pipx list
-      changed_when: false
-      register: werkstatt_list_of_pipx_packages
+        - name: Download & Install pyenv
+          when: werkstatt_is_pyenv_outdated
+          block:
+            - name: Download Bash script for installing pyenv
+              ansible.builtin.get_url:
+                url: https://pyenv.run
+                dest: /tmp/pyenv-installer
+                mode: u=rwx,go=r
 
-    ##
-    # bpython is a fancy interface to the Python interactive interpreter.
+            - name: Install pyenv
+              environment:
+                PYENV_GIT_TAG: v{{ werkstatt_pyenv_version }}
+              ansible.builtin.shell:
+                executable: /usr/bin/bash
+                chdir: /tmp
+                cmd: ./pyenv-installer
+              changed_when: not werkstatt_stat_pyenv.stat.exists
+
+        - name: Delete pyenv installer script
+          ansible.builtin.file:
+            path: /tmp/pyenv-installer
+            state: absent
+
+        - name: Integrate pyenv with bash
+          block:
+            - name: Add bash environment variables for pyenv
+              vars:
+                bash_envs_to_add:
+                  PYENV_ROOT: "{{ werkstatt_pyenv_root }}"
+              ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
+
+            - name: Add bash executable path for pyenv
+              vars:
+                bash_paths_to_add:
+                  - "{{ werkstatt_pyenv_root }}/bin"
+              ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml
+
+            - name: Add bash plugin for pyenv
+              vars:
+                bash_plugins_to_add:
+                  - 'eval "$(pyenv init -)"'
+              ansible.builtin.include_tasks: ../tasks/bash_add_plugins.yml
+
+    - name: Installation of latest Python
+      block:
+        - name: Install Ubuntu packages needed to compile Python
+          become: true
+          ansible.builtin.apt:
+            package:
+              - build-essential
+              - libbz2-dev
+              - libffi-dev
+              - liblzma-dev
+              - libncursesw5-dev
+              - libreadline-dev
+              - libsqlite3-dev
+              - libssl-dev
+              - libxml2-dev
+              - libxmlsec1-dev
+              - tk-dev
+              - xz-utils
+              - zlib1g-dev
+
+        - name: Is required Python version already installed?
+          ansible.builtin.stat:
+            path: "{{ werkstatt_pyenv_root }}/versions/{{ werkstatt_python_version }}"
+          register: werkstatt_stat_pyenv_python_version
+
+        - name: Install Python
+          when: not werkstatt_stat_pyenv_python_version.stat.exists
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            cmd: "{{ werkstatt_pyenv_root }}/bin/pyenv install {{ werkstatt_python_version }}"
+          changed_when: not werkstatt_stat_pyenv_python_version.stat.exists
+
+        - name: Has a global Python version been set?
+          ansible.builtin.stat:
+            path: "{{ werkstatt_pyenv_root }}/version"
+          register: werkstatt_stat_python_global_version
+
+        - name: Obtain current global Python version
+          when: werkstatt_stat_python_global_version.stat.exists
+          ansible.builtin.command:
+            chdir: "{{ werkstatt_pyenv_root }}"
+            cmd: cat version
+          changed_when: false
+          register: werkstatt_current_python_global_version
+
+        - name: Is current global Python the desired version?
+          ansible.builtin.set_fact:
+            werkstatt_is_global_python_version_correct: "{{
+              not werkstatt_stat_python_global_version.stat.exists
+              or
+              not (werkstatt_current_python_global_version.stdout == werkstatt_python_version) }}"
+
+        - name: Set global Python version
+          when: werkstatt_is_global_python_version_correct
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            cmd: "{{ werkstatt_pyenv_root }}/bin/pyenv global {{ werkstatt_python_version }}"
+          changed_when: werkstatt_is_global_python_version_correct
+
+    # - name: Install Debian packages for Python
+    #   become: true
+    #   ansible.builtin.apt:
+    #     package:
+    #       ##
+    #       # pip is the Python package installer. You can use it to install
+    #       # packages from the Python Package Index and other indexes.
+    #       #
+    #       # @link  https://pip.pypa.io/en/stable/
+    #       ##
+    #       - python3-pip
     #
-    # @link  https://bpython-interpreter.org/
-    ##
-    - name: A fancy interface to the Python interactive interpreter - bpython
-      when: not 'bpython' in werkstatt_list_of_pipx_packages.stdout
-      ansible.builtin.command:
-        cmd: python3 -m pipx install bpython
-      changed_when: not 'bpython' in werkstatt_list_of_pipx_packages.stdout
+    #       ##
+    #       # The venv module is part of the Python Standard Library. It supports
+    #       # creating lightweight “virtual environments”, each with their own
+    #       # independent set of Python packages installed in their site
+    #       # directories.
+    #       #
+    #       # It is a dependency for pipx.
+    #       #
+    #       # @link  https://docs.python.org/3/library/venv.html
+    #       ##
+    #       - python3-venv
+    #
+    # - name: Install Python packages
+    #   ansible.builtin.pip:
+    #     name:
+    #       ##
+    #       # pipx allows you to install Python packages that you’d habitually
+    #       # run as stand-alone applications, in isolated environments.
+    #       #
+    #       # @link  https://pipx.pypa.io
+    #       ##
+    #       - pipx
+    #
+    # - name: Are pipx applications on $PATH?
+    #   ansible.builtin.set_fact:
+    #     werkstatt_is_pipx_on_path: "{{
+    #       ansible_env.PATH is search(ansible_env.HOME + '/.local/bin') }}"
+    #
+    # - name: Ensure that applications installed with pipx are on $PATH
+    #   when: not werkstatt_is_pipx_on_path
+    #   ansible.builtin.command:
+    #     cmd: python3 -m pipx ensurepath
+    #   changed_when: not werkstatt_is_pipx_on_path
+    #
+    # - name: List out all packages installed with pipx
+    #   ansible.builtin.command:
+    #     cmd: python3 -m pipx list
+    #   changed_when: false
+    #   register: werkstatt_list_of_pipx_packages
+    #
+    # ##
+    # # bpython is a fancy interface to the Python interactive interpreter.
+    # #
+    # # @link  https://bpython-interpreter.org/
+    # ##
+    # - name: A fancy interface to the Python interactive interpreter - bpython
+    #   when: not 'bpython' in werkstatt_list_of_pipx_packages.stdout
+    #   ansible.builtin.command:
+    #     cmd: python3 -m pipx install bpython
+    #   changed_when: not 'bpython' in werkstatt_list_of_pipx_packages.stdout
