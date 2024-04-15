@@ -237,6 +237,11 @@
             pipx_app_to_install: poetry
           ansible.builtin.include_tasks: ../tasks/pipx_install_app.yml
 
+        - name: Configure poetry to work with pyenv
+          ansible.builtin.command:
+            cmd: "{{ werkstatt_poetry }} config virtualenvs.prefer-active-python true"
+            creates: "{{ werkstatt_xdg_config_home }}/pypoetry/config.toml"
+
         - name: Has poetry completions for bash been deployed?
           ansible.builtin.stat:
             path: "{{ werkstatt_xdg_data_home }}/bash-completion/completions/poetry"
