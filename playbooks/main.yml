@@ -97,8 +97,9 @@
 
 - name: Python Programming Language
   ansible.builtin.import_playbook: ./lang_python.yml
-# - name: Rust Programming Language
-#   ansible.builtin.import_playbook: ./lang_rust.yml
+
+- name: Rust Programming Language
+  ansible.builtin.import_playbook: ./lang_rust.yml
 #
 # - name: Go Programming Language
 #   ansible.builtin.import_playbook: ./lang_go.yml
