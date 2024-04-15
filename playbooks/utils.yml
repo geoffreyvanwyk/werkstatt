@@ -215,6 +215,16 @@
         pipx_app_to_install: httpie
       ansible.builtin.include_tasks: ../tasks/pipx_install_app.yml
 
+    ##
+    # tldr provides simplified and community-driven manpages.
+    #
+    # @see  {@link https://tldr.sh}
+    ##
+    - name: TLDR
+      vars:
+        pipx_app_to_install: tldr
+      ansible.builtin.include_tasks: ../tasks/pipx_install_app.yml
+
 ##
 # gdu is a fast disk usage analyzer with a console interface, written in
 # Go.
