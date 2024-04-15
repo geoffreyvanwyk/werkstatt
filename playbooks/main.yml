@@ -102,8 +102,8 @@
 # - name: Ruby Programming Language
 #   ansible.builtin.import_playbook: ./lang_ruby.yml
 
-# - name: JavaScript Programming Language
-#   ansible.builtin.import_playbook: ./lang_javascript.yml
+- name: JavaScript Programming Language
+  ansible.builtin.import_playbook: ./lang_javascript.yml
 
 # - name: PHP Programming Language
 #   ansible.builtin.import_playbook: ./lang_php.yml

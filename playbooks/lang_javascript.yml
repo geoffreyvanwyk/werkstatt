@@ -1,104 +1,179 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that installs the Node.js server-side run-time for
+# JavaScript and other useful programmes for working with it.
+#
+# @see        {@link https://nodejs.org}
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+##
 ---
 - name: JavaScript Programming Language
   hosts: all
 
-  vars:
-    werkstatt_nvm_version: 0.39.7
+  tasks:
+    - name: Set JavaScript facts for Werkstatt
+      ansible.builtin.set_fact:
+        werkstatt_nodenv_version: 1.4.1
+        werkstatt_nodebuild_version: 4.9.143
+        werkstatt_node_version: 21.7.3
+        werkstatt_nodenv_root: "{{ ansible_env.HOME }}/.nodenv"
+        werkstatt_nodenv: "{{ ansible_env.HOME }}/.nodenv/bin/nodenv"
+        werkstatt_node: "{{ ansible_env.HOME }}/.nodenv/shims/node"
+        werkstatt_npm: "{{ ansible_env.HOME }}/.nodenv/shims/npm"
+        werkstatt_npx: "{{ ansible_env.HOME }}/.nodenv/shims/npx"
+        werkstatt_yarn: "{{ ansible_env.HOME }}/.nodenv/shims/yarn"
+
+##
+# nodenv provides simple Node.js version management.
+#
+# Installs nodenv, then set the global Node version to the latest stable
+# version.
+#
+# @see  {@link https://github.com/nodenv/nodenv}
+##
+- name: NODENV
+  hosts: all
 
   tasks:
-    - name: Is nvm installed?
-      ansible.builtin.stat:
-        path: "{{ ansible_env.XDG_CONFIG_HOME }}/nvm/nvm.sh"
-      register: werkstatt_stat_nvm
-
-    - name: Display nvm version
-      when: werkstatt_stat_nvm.stat.exists
-      ansible.builtin.shell:
-        executable: /usr/bin/bash
-        cmd: nvm --version
-      changed_when: false
-      register: werkstatt_display_nvm_version
-
-    - name: Is nvm outdated?
-      ansible.builtin.set_fact:
-        werkstatt_is_nvm_outdated: "{{
-          not werkstatt_stat_nvm.stat.exists
-          or
-          not (werkstatt_display_nvm_version.stdout == werkstatt_nvm_version) }}"
-
-    - name: Download then install nvm
-      when: werkstatt_is_nvm_outdated
+    - name: Installation of nodenv & node-build
       block:
-        - name: Download nvm install script
-          ansible.builtin.get_url:
-            url: https://raw.githubusercontent.com/nvm-sh/nvm/v{{ werkstatt_nvm_version }}/install.sh
-            dest: /tmp/nvm_install.sh
-            mode: ugo=rwx
+        - name: Clone nodenv source code repository
+          ansible.builtin.git:
+            repo: https://github.com/nodenv/nodenv
+            version: "v{{ werkstatt_nodenv_version }}"
+            dest: "{{ werkstatt_nodenv_root }}"
 
-        - name: Delete current nvm directory
+        - name: Create directory for nodenv plugins
           ansible.builtin.file:
-            path: "{{ ansible_env.XDG_CONFIG_HOME }}/nvm"
-            state: absent
+            path: "{{ werkstatt_nodenv_root }}/plugins"
+            state: directory
+            mode: u=rwX,go=rX
 
-        - name: Run nvm install script
-          environment:
-            PROFILE: /dev/null
+        - name: Clone node-build source code repository
+          ansible.builtin.git:
+            repo: https://github.com/nodenv/node-build
+            version: v{{ werkstatt_nodebuild_version }}
+            dest: "{{ werkstatt_nodenv_root }}/plugins/node-build"
+
+        - name: Integrate nodenv with bash
+          block:
+            - name: Add bash environment variables for nodenv
+              vars:
+                bash_envs_to_add:
+                  NODENV_ROOT: "{{ werkstatt_nodenv_root }}"
+              ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
+
+            - name: Add bash executable path for nodenv
+              vars:
+                bash_paths_to_add:
+                  - "{{ werkstatt_nodenv_root }}/bin"
+              ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml
+
+            - name: Add bash plugin for nodenv
+              vars:
+                bash_plugins_to_add:
+                  - 'eval "$(nodenv init -)"'
+              ansible.builtin.include_tasks: ../tasks/bash_add_plugins.yml
+
+    - name: Installation of latest Node
+      block:
+        - name: Is required Node version already installed?
+          ansible.builtin.stat:
+            path: "{{ werkstatt_nodenv_root }}/versions/{{ werkstatt_node_version }}"
+          register: werkstatt_stat_node_version
+
+        - name: Install Node
+          when: not werkstatt_stat_node_version.stat.exists
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            cmd: "{{ werkstatt_nodenv }} install {{ werkstatt_node_version }}"
+          changed_when: not werkstatt_stat_node_version.stat.exists
+
+        - name: Has a global Node version been set?
+          ansible.builtin.stat:
+            path: "{{ werkstatt_nodenv_root }}/version"
+          register: werkstatt_stat_node_global_version
+
+        - name: Obtain current global Node version
+          when: werkstatt_stat_node_global_version.stat.exists
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            chdir: "{{ werkstatt_nodenv_root }}"
+            cmd: \cat version
+          changed_when: false
+          register: werkstatt_current_node_global_version
+
+        - name: Is current global Node the desired version?
+          ansible.builtin.set_fact:
+            werkstatt_is_global_node_version_correct: "{{
+              werkstatt_stat_node_global_version.stat.exists
+              and
+              werkstatt_current_node_global_version.stdout == werkstatt_node_version }}"
+
+        - name: Set global Node version
+          when: not werkstatt_is_global_node_version_correct
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            cmd: "{{ werkstatt_nodenv }} global {{ werkstatt_node_version }}"
+          changed_when: not werkstatt_is_global_node_version_correct
+
+    - name: Install global Node packages
+      block:
+        - name: List out all global packages installed with npm
           ansible.builtin.command:
-            chdir: /tmp
-            cmd: ./nvm_install.sh
-            creates: "{{ ansible_env.XDG_CONFIG_HOME }}/nvm/nvm.sh"
+            cmd: "{{ werkstatt_npm }} ls --global"
+          changed_when: false
+          register: werkstatt_list_of_global_npm_packages
 
-    - name: Delete nvm install script
-      ansible.builtin.file:
-        path: /tmp/nvm_install.sh
-        state: absent
+        ##
+        # Yarn is a package manager that doubles down as project manager.
+        # Whether you work on simple projects or industry monorepos, whether
+        # you're an open source developer or an enterprise user, Yarn has
+        # your back.
+        #
+        # @see  {@link https://www.yarnpkg.com}
+        ##
+        - name: Install yarn
+          when: not 'yarn' in werkstatt_list_of_global_npm_packages.stdout
+          ansible.builtin.command:
+            cmd: "{{ werkstatt_npm }} install --global yarn"
+          changed_when: not 'yarn' in werkstatt_list_of_global_npm_packages.stdout
 
-    - name: Set nvm directory environment variable
-      vars:
-        bash_envs_to_add:
-          NVM_DIR: $XDG_CONFIG_HOME/nvm
-      ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
+        ##
+        # Grunt is a JavaScript task runner.
+        #
+        # @see  {@link https://www.gruntjs.com}
+        ##
+        - name: Install grunt
+          when: not 'grunt-cli' in werkstatt_list_of_global_npm_packages.stdout
+          ansible.builtin.command:
+            cmd: "{{ werkstatt_npm }} install --global grunt-cli"
+          changed_when: not 'grunt-cli' in werkstatt_list_of_global_npm_packages.stdout
 
-    - name: Source nvm script from .bashrc
-      vars:
-        bash_plugins_to_add:
-          - '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
-          - '[[ -r $NVM_DIR/bash_completion ]] && \. $NVM_DIR/bash_completion'
-      ansible.builtin.include_tasks: ../tasks/bash_add_plugins.yml
-
-    - name: Create file for default packages
-      ansible.builtin.copy:
-        content: ""
-        dest: "{{ ansible_env.XDG_CONFIG_HOME }}/nvm/default-packages"
-        force: false
-        mode: u=rw,go=r
-
-    - name: List default packages
-      loop:
-        # Execute npm package binaries: www.npmjs.com/package/npm
-        - npx
-        # Alternative to npm: www.yarn.com
-        - yarn
-        # Task Runner: www.gruntjs.com
-        - grunt
-        # Task Runner: www.gulpjs.com
-        - gulp-cli
-        # Command Examples: www.tldr.sh
-        - tldr
-      ansible.builtin.lineinfile:
-        path: "{{ ansible_env.XDG_CONFIG_HOME }}/nvm/default-packages"
-        line: "{{ item }}"
-
-    - name: Has default node version been set?
-      ansible.builtin.shell:
-        executable: /usr/bin/bash
-        cmd: nvm current
-      changed_when: false
-      register: werkstatt_display_current_node_version
-
-    - name: Dowload, compile, then install latest node version
-      when: werkstatt_display_current_node_version.stdout == 'none'
-      ansible.builtin.shell:
-        executable: /usr/bin/bash
-        cmd: nvm install --default node
-      changed_when: true
+        ##
+        # Gulp is a toolkit to automate & enhance your workflow. Leverage gulp
+        # and the flexibility of JavaScript to automate slow, repetitive
+        # workflows and compose them into efficient build pipelines.
+        #
+        # @see  {@link https://www.gulpjs.com}
+        ##
+        - name: Install gulp
+          when: not 'gulp-cli' in werkstatt_list_of_global_npm_packages.stdout
+          ansible.builtin.command:
+            cmd: "{{ werkstatt_npm }} install --global gulp-cli"
+          changed_when: not 'gulp-cli' in werkstatt_list_of_global_npm_packages.stdout
