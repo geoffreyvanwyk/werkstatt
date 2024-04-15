@@ -13,3 +13,8 @@
   ansible.builtin.lineinfile:
     path: /usr/local/share/werkstatt/bash_aliases
     line: alias {{ item.key }}='{{ item.value }}'
+##
+# TODO add completion for aliases
+#
+# @see  {@link https://unix.stackexchange.com/a/685829/8245}
+##

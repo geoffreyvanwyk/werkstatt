@@ -1,3 +1,25 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that configures Git and install additional helper utilities.
+#
+# @see        {@link https://git-scm.com}
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+##
 ---
 - name: Version Control with Git
   hosts: all
@@ -28,7 +50,7 @@
         - name: Create directory for LazyGit
           become: true
           ansible.builtin.file:
-            path: /opt/lazygit/lazygit_{{ lazygit_version }}
+            path: /tmp/lazygit_{{ lazygit_version }}
             state: directory
             owner: "{{ ansible_user }}"
             group: "{{ ansible_user }}"
@@ -37,18 +59,18 @@
         - name: Download LazyGit archive
           ansible.builtin.get_url:
             url: https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz
-            dest: /opt/lazygit/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz
+            dest: /tmp/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz
             mode: u=rw,go=r
 
         - name: Extract LazyGit archive
           ansible.builtin.unarchive:
-            src: /opt/lazygit/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz
+            src: /tmp/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz
             remote_src: true
-            dest: /opt/lazygit/lazygit_{{ lazygit_version }}
+            dest: /tmp/lazygit_{{ lazygit_version }}
 
         - name: Install LazyGit
           become: true
           ansible.builtin.command:
-            chdir: /opt/lazygit/lazygit_{{ lazygit_version }}
+            chdir: /tmp/lazygit_{{ lazygit_version }}
             cmd: install lazygit /usr/local/bin
             creates: /usr/local/bin/lazygit

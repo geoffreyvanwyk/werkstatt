@@ -1,22 +1,42 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that installs and configures Docker for containerization.
+#
+# @see        {@link https://docker.com}
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+##
 ---
 - name: Install Docker containerization system
   hosts: all
 
   vars:
-    # no, because systemd is not available in WSL (Windows 10).
-    docker_service_manage: no
     # Users added to the docker group.
     docker_users:
       - werker
 
   roles:
-    - name: geerlingguy.docker
+    - role: geerlingguy.docker
       become: yes
 
   tasks:
-    - name: Add abbreviations for Docker
+    - name: Add bash aliases for Docker
       vars:
-        fish_abbreviations_to_add:
+        bash_aliases_to_add:
           d: docker
           dx: docker exec -it
-      ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
+      ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
