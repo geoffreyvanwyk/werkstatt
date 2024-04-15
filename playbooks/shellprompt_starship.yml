@@ -80,3 +80,9 @@
         dest: "{{ ansible_env.HOME }}/.config/{{ item }}"
         force: true
         mode: u=rw,go=r
+
+    - name: Add bash environment variables for Starship
+      vars:
+        bash_envs_to_add:
+          STARSHIP_CONFIG: $HOME/.config/starship_bash.toml
+      ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
