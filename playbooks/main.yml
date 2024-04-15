@@ -37,20 +37,6 @@
         cache_valid_time: "{{ 60 * 60 * 24 * 7 }}" # 7 days in seconds
         upgrade: true
 
-    - name: Install important general packages
-      become: true
-      ansible.builtin.apt:
-        package:
-          ##
-          # build-essential contains list of packages necessary for building
-          # Debian packages, such as C & C++ compilers. These are also
-          # necessary for building other packages, e.g. Rust packages with
-          # Cargo.
-          #
-          # @see  {@link https://packages.ubuntu.com/jammy/build-essential}
-          ##
-          - build-essential
-
     - name: Create user configuration directory
       ansible.builtin.file:
         path: "{{ ansible_env.HOME }}/.config"
@@ -69,14 +55,14 @@
 
 - name: Bash - Bourne Again Shell
   ansible.builtin.import_playbook: ./shell_bash.yml
+
+- name: Python Programming Language
+  ansible.builtin.import_playbook: ./lang_python.yml
 # - name: Rust Programming Language
 #   ansible.builtin.import_playbook: ./lang_rust.yml
 #
 # - name: Go Programming Language
 #   ansible.builtin.import_playbook: ./lang_go.yml
-
-# - name: Python Programming Language
-#   ansible.builtin.import_playbook: ./lang_python.yml
 
 # - name: JavaScript Programming Language
 #   ansible.builtin.import_playbook: ./lang_javascript.yml
