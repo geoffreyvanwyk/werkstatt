@@ -13,17 +13,18 @@
 # Werkstatt. If not, see <https://www.gnu.org/licenses/>.
 
 ##
-# Ansible playbook that runs all the subsidiary playbooks in the correct
-# sequence.
+# Ansible playbook that runs all the subsidiary playbooks (except for
+# fabrik.yml) in the correct sequence.
 #
 # This playbook should only be run if the target distribution (Fabrik) has
 # already been prepared with the manual steps described in CONTRIBUTING.md and
 # with the fabrik.yml playbook.
 #
+# @see        {@link https://github.com/geoffreyvanwyk/werkstatt}
 # @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
 # @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
 # @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
-###
+##
 ---
 - name: Main
   hosts: all
@@ -98,14 +99,18 @@
 - name: Python Programming Language
   ansible.builtin.import_playbook: ./lang_python.yml
 
+# - name: JavaScript Programming Language
+#   ansible.builtin.import_playbook: ./lang_javascript.yml
+
+# - name: PHP Programming Language
+#   ansible.builtin.import_playbook: ./lang_php.yml
+
 - name: Rust Programming Language
   ansible.builtin.import_playbook: ./lang_rust.yml
 
 - name: Go Programming Language
   ansible.builtin.import_playbook: ./lang_go.yml
-# - name: JavaScript Programming Language
-#   ansible.builtin.import_playbook: ./lang_javascript.yml
-#
+
 - name: Utility Programmes
   ansible.builtin.import_playbook: ./utils.yml
 #
