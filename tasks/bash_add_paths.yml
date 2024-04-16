@@ -3,13 +3,13 @@
   become: true
   ansible.builtin.copy:
     content: ""
-    dest: /usr/local/share/werkstatt/bash_paths
+    dest: "{{ werkstatt_data_dir }}/bash_paths"
     force: false
     mode: u=rw,go=r
 
 - name: Add bash paths
   become: true
   ansible.builtin.lineinfile:
-    path: /usr/local/share/werkstatt/bash_paths
+    path: "{{ werkstatt_data_dir }}/bash_paths"
     line: "{{ item }}"
   loop: "{{ bash_paths_to_add }}"

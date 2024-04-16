@@ -39,8 +39,8 @@ shopt -s checkwinsize
 
 ##------ Werkstatt Environment Variables
 
-if [[ -f /usr/local/share/werkstatt/bash_env ]]; then
-	source /usr/local/share/werkstatt/bash_env
+if [[ -f {{ werkstatt_data_dir }}/bash_env ]]; then
+	source {{ werkstatt_data_dir }}/bash_env
 fi
 
 ##------ User Environment Variables
@@ -53,12 +53,12 @@ fi
 
 ###--------- Werkstatt Executble Paths
 
-if [[ -f /usr/local/share/werkstatt/bash_paths ]]; then
+if [[ -f {{ werkstatt_data_dir }}/bash_paths ]]; then
 	while IFS="" read -r WERKSTATT_ADDITIONAL_PATH || [[ -n "$WERKSTATT_ADDITIONAL_PATH" ]]; do
 		if [[ -n "$WERKSTATT_ADDITIONAL_PATH" ]] && [[ -d "$WERKSTATT_ADDITIONAL_PATH" ]] && [[ $PATH != *"$WERKSTATT_ADDITIONAL_PATH"* ]]; then
 			export PATH=$WERKSTATT_ADDITIONAL_PATH:$PATH
 		fi
-	done </usr/local/share/werkstatt/bash_paths
+	done <{{ werkstatt_data_dir }}/bash_paths
 fi
 
 ###--------- User Executble Paths
@@ -73,16 +73,16 @@ fi
 
 #--- Plugins
 
-if [[ -f /usr/local/share/werkstatt/bash_plugins ]]; then
-	source /usr/local/share/werkstatt/bash_plugins
+if [[ -f {{ werkstatt_data_dir }}/bash_plugins ]]; then
+	source {{ werkstatt_data_dir }}/bash_plugins
 fi
 
 #--- Aliases
 
 ##------ Werkstatt Aliases
 
-if [[ -f /usr/local/share/werkstatt/bash_aliases ]]; then
-	source /usr/local/share/werkstatt/bash_aliases
+if [[ -f {{ werkstatt_data_dir }}/bash_aliases ]]; then
+	source {{ werkstatt_data_dir }}/bash_aliases
 fi
 
 ##------ User Aliases

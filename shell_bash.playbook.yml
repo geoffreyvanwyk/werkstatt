@@ -62,14 +62,15 @@
 
       # This file is for the user to copy in case he messes up ~/.bashrc.
     - name: Deploy bash run-commands file
-      ansible.builtin.copy:
-        src: bashrc
+      ansible.builtin.template:
+        src: bashrc.jinja
         dest: "{{ werkstatt_data_dir }}/bashrc"
         mode: u=rw,go=r
 
     - name: Deploy bash run-commands file for user
       ansible.builtin.copy:
-        src: bashrc
+        src: "{{ werkstatt_data_dir }}/bashrc"
+        remote_src: true
         dest: "{{ ansible_env.HOME }}/.bashrc"
         mode: u=rw,go=r
 

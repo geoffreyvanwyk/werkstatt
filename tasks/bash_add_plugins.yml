@@ -3,13 +3,13 @@
   become: true
   ansible.builtin.copy:
     content: ""
-    dest: /usr/local/share/werkstatt/bash_plugins
+    dest: "{{ werkstatt_data_dir }}/bash_plugins"
     force: false
     mode: u=rw,go=r
 
 - name: Add bash plugins
   become: true
   ansible.builtin.lineinfile:
-    path: /usr/local/share/werkstatt/bash_plugins
+    path: "{{ werkstatt_data_dir }}/bash_plugins"
     line: "{{ item }}"
   loop: "{{ bash_plugins_to_add }}"
