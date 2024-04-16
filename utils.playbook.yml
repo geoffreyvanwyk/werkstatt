@@ -100,7 +100,7 @@
               llta: eza --long --tree --all --icons --git
               lt: eza --tree --icons
               lta: eza --tree --all --icons
-          ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+          ansible.builtin.include_tasks: tasks/bash_add_aliases.yml
 
     ##
     # bat is a cat clone with wings.
@@ -155,13 +155,13 @@
           vars:
             bash_paths_to_add:
               - /opt/fzf/bin
-          ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml
+          ansible.builtin.include_tasks: tasks/bash_add_paths.yml
 
         - name: Integrate fzf with bash
           vars:
             bash_plugins_to_add:
               - eval "$(fzf --bash)"
-          ansible.builtin.include_tasks: ../tasks/bash_add_plugins.yml
+          ansible.builtin.include_tasks: tasks/bash_add_plugins.yml
 
     ##
     # ripgrep is a faster grep
@@ -213,7 +213,7 @@
     - name: HTTPIE
       vars:
         pipx_app_to_install: httpie
-      ansible.builtin.include_tasks: ../tasks/pipx_install_app.yml
+      ansible.builtin.include_tasks: tasks/pipx_install_app.yml
 
     ##
     # tldr provides simplified and community-driven manpages.
@@ -223,7 +223,7 @@
     - name: TLDR
       vars:
         pipx_app_to_install: tldr
-      ansible.builtin.include_tasks: ../tasks/pipx_install_app.yml
+      ansible.builtin.include_tasks: tasks/pipx_install_app.yml
 
 ##
 # gdu is a fast disk usage analyzer with a console interface, written in

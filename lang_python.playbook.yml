@@ -32,7 +32,7 @@
       vars:
         bash_aliases_to_add:
           py: python
-      ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+      ansible.builtin.include_tasks: tasks/bash_add_aliases.yml
 
     - name: Set Python facts for Werkstatt
       ansible.builtin.set_fact:
@@ -108,19 +108,19 @@
               vars:
                 bash_envs_to_add:
                   PYENV_ROOT: "{{ werkstatt_pyenv_root }}"
-              ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
+              ansible.builtin.include_tasks: tasks/bash_add_env.yml
 
             - name: Add bash executable path for pyenv
               vars:
                 bash_paths_to_add:
                   - "{{ werkstatt_pyenv_root }}/bin"
-              ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml
+              ansible.builtin.include_tasks: tasks/bash_add_paths.yml
 
             - name: Add bash plugin for pyenv
               vars:
                 bash_plugins_to_add:
                   - 'eval "$(pyenv init -)"'
-              ansible.builtin.include_tasks: ../tasks/bash_add_plugins.yml
+              ansible.builtin.include_tasks: tasks/bash_add_plugins.yml
 
     - name: Installation of latest Python
       block:
@@ -213,13 +213,13 @@
         - name: Install bpython
           vars:
             pipx_app_to_install: bpython
-          ansible.builtin.include_tasks: ../tasks/pipx_install_app.yml
+          ansible.builtin.include_tasks: tasks/pipx_install_app.yml
 
         - name: Add bash aliases for bpython
           vars:
             bash_aliases_to_add:
               bpy: bpython
-          ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+          ansible.builtin.include_tasks: tasks/bash_add_aliases.yml
 
     ##
     # poetry is a tool for dependency management and packaging in Python. It
@@ -235,7 +235,7 @@
         - name: Install poetry
           vars:
             pipx_app_to_install: poetry
-          ansible.builtin.include_tasks: ../tasks/pipx_install_app.yml
+          ansible.builtin.include_tasks: tasks/pipx_install_app.yml
 
         - name: Configure poetry to work with pyenv
           ansible.builtin.command:

@@ -14,11 +14,11 @@
 
 ##
 # Ansible playbook that runs all the subsidiary playbooks (except for
-# fabrik.yml) in the correct sequence.
+# fabrik.playbook.yml) in the correct sequence.
 #
 # This playbook should only be run if the target distribution (Fabrik) has
 # already been prepared with the manual steps described in CONTRIBUTING.md and
-# with the fabrik.yml playbook.
+# with the fabrik.playbook.yml playbook.
 #
 # @see        {@link https://github.com/geoffreyvanwyk/werkstatt}
 # @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
@@ -91,42 +91,42 @@
         mode: u=rwX,go=rX
 
 - name: Starship - minimal, blazingly fast, infinitely customizable shell prompt
-  ansible.builtin.import_playbook: ./shellprompt_starship.yml
+  ansible.builtin.import_playbook: ./shellprompt_starship.playbook.yml
 
 - name: BASH - Bourne Again Shell
-  ansible.builtin.import_playbook: ./shell_bash.yml
+  ansible.builtin.import_playbook: ./shell_bash.playbook.yml
 
 - name: Python Programming Language
-  ansible.builtin.import_playbook: ./lang_python.yml
+  ansible.builtin.import_playbook: ./lang_python.playbook.yml
 
 # - name: Ruby Programming Language
-#   ansible.builtin.import_playbook: ./lang_ruby.yml
+#   ansible.builtin.import_playbook: ./lang_ruby.playbook.yml
 
 - name: JavaScript Programming Language
-  ansible.builtin.import_playbook: ./lang_javascript.yml
+  ansible.builtin.import_playbook: ./lang_javascript.playbook.yml
 
 # - name: PHP Programming Language
-#   ansible.builtin.import_playbook: ./lang_php.yml
+#   ansible.builtin.import_playbook: ./lang_php.playbook.yml
 
 - name: Rust Programming Language
-  ansible.builtin.import_playbook: ./lang_rust.yml
+  ansible.builtin.import_playbook: ./lang_rust.playbook.yml
 
 - name: Go Programming Language
-  ansible.builtin.import_playbook: ./lang_go.yml
+  ansible.builtin.import_playbook: ./lang_go.playbook.yml
 
 - name: Git for Version Control of Source Code
-  ansible.builtin.import_playbook: ./versioncontrol_git.yml
+  ansible.builtin.import_playbook: ./versioncontrol_git.playbook.yml
 
 # - name: Tmux Multiplexer
-#   ansible.builtin.import_playbook: ./multiplexer_tmux.yml
+#   ansible.builtin.import_playbook: ./multiplexer_tmux.playbook.yml
 
 - name: Utility Programmes
-  ansible.builtin.import_playbook: ./utils.yml
+  ansible.builtin.import_playbook: ./utils.playbook.yml
 
 - name: Docker for Containerization
-  ansible.builtin.import_playbook: ./containers_docker.yml
+  ansible.builtin.import_playbook: ./containers_docker.playbook.yml
 # - name: Automation with Ansible
-#   ansible.builtin.import_playbook: ./automation_ansible.yml
+#   ansible.builtin.import_playbook: ./automation_ansible.playbook.yml
 
 # - name: Neovim Text Editor
-#   ansible.builtin.import_playbook: ./editor_neovim.yml
+#   ansible.builtin.import_playbook: ./editor_neovim.playbook.yml
