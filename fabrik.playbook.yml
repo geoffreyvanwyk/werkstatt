@@ -38,6 +38,7 @@
             user: werker
             commands: ALL
             nopassword: true
+            setenv: true
 
     - name: Windows Subsystem for Linux
       block:
