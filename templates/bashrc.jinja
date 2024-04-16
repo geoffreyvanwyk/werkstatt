@@ -1,12 +1,12 @@
 # THIS FILE IS MANAGED BY WERKSTATT.
-# PLEASE CREATE $HOME/.bash_myrc FOR PERSONAL CUSTOMIZATIONS.
-# THIS FILE WILL SOURCE $HOME/.bash_myrc.
+# BECAUSE OF THE BLE.SH LINE EDITOR AND THE STARSHIP PROMPT.
+# PLEASE CREATE ~/.bash_myrc FOR PERSONAL CUSTOMIZATIONS.
+# THIS FILE WILL SOURCE ~/.bash_myrc.
 
-# If not running interactively, don't do anything
-case $- in
-*i*) ;;
-*) return ;;
-esac
+#--- ble.sh Line Editor - First Step of Activation
+
+# Werkstatt - line below must the first line of code.
+ [[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --attach=none
 
 #--- Globbing
 
@@ -140,3 +140,8 @@ set -o vi
 #--- Prompt
 
 eval "$(starship init bash)"
+
+#--- ble.sh Line Editor - Second Step of Activation
+
+[[ ${BLE_VERSION-} ]] && ble-attach
+# Werkstatt - above line must be the last line of code.
