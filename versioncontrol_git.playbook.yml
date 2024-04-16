@@ -41,7 +41,7 @@
           gpl: git pull
           gr: git remote
           gs: git status
-      ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+      ansible.builtin.include_tasks: tasks/bash_add_aliases.yml
 
     - name: LazyGit - Simple terminal UI for Git commands
       vars:

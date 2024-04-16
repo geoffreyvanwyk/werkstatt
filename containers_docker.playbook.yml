@@ -39,4 +39,4 @@
         bash_aliases_to_add:
           d: docker
           dx: docker exec -it
-      ansible.builtin.include_tasks: ../tasks/bash_add_aliases.yml
+      ansible.builtin.include_tasks: tasks/bash_add_aliases.yml

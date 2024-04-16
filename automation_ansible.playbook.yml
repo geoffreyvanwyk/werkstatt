@@ -18,7 +18,7 @@
           ap: ansible-playbook
           agx: ansible-galaxy
           mol: molecule
-      ansible.builtin.include_tasks: ../tasks/fish_add_abbreviations.yml
+      ansible.builtin.include_tasks: tasks/fish_add_abbreviations.yml
 
     - name: Install Ansible packages into the main Python virtual environment
       ansible.builtin.shell:

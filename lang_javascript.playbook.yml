@@ -76,19 +76,19 @@
               vars:
                 bash_envs_to_add:
                   NODENV_ROOT: "{{ werkstatt_nodenv_root }}"
-              ansible.builtin.include_tasks: ../tasks/bash_add_env.yml
+              ansible.builtin.include_tasks: tasks/bash_add_env.yml
 
             - name: Add bash executable path for nodenv
               vars:
                 bash_paths_to_add:
                   - "{{ werkstatt_nodenv_root }}/bin"
-              ansible.builtin.include_tasks: ../tasks/bash_add_paths.yml
+              ansible.builtin.include_tasks: tasks/bash_add_paths.yml
 
             - name: Add bash plugin for nodenv
               vars:
                 bash_plugins_to_add:
                   - 'eval "$(nodenv init -)"'
-              ansible.builtin.include_tasks: ../tasks/bash_add_plugins.yml
+              ansible.builtin.include_tasks: tasks/bash_add_plugins.yml
 
     - name: Installation of latest Node
       block:
