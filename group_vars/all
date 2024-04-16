@@ -1,0 +1,6 @@
+werkstatt_data_dir: "{{ ansible_env.HOME }}/.local/share/werkstatt"
+werkstatt_xdg_bin_home: "{{ ansible_env.HOME }}/.local/bin"
+werkstatt_xdg_cache_home: "{{ ansible_env.HOME }}/.cache"
+werkstatt_xdg_config_home: "{{ ansible_env.HOME }}/.config"
+werkstatt_xdg_data_home: "{{ ansible_env.HOME }}/.local/share"
+werkstatt_xdg_state_home: "{{ ansible_env.HOME }}/.local/state"
