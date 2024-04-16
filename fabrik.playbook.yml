@@ -1,6 +1,7 @@
 ---
 - name: Fabrik
   hosts: all
+  become: true
 
   tasks:
     - name: User - werker
@@ -60,3 +61,17 @@
             section: boot
             option: systemd
             value: true
+
+        - name: Do not generate DNS resolution map
+          community.general.ini_file:
+            path: /etc/wsl.conf
+            section: network
+            option: generateResolvConf
+            value: false
+
+    - name: Create resolv.conf file
+      ansible.builtin.copy:
+        content: "nameserver 8.8.8.8"
+        dest: /etc/resolv.conf
+        force: false
+        mode: u=rw,go=r
