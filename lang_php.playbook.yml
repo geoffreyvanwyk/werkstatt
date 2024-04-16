@@ -30,6 +30,10 @@
       become: true
 
   tasks:
+    - name: Set facts about PHP
+      ansible.builtin.set_fact:
+        werkstatt_composer: "{{ werkstatt_xdg_bin_home }}/composer"
+        werkstatt_laravel: "{{ werkstatt_xdg_config_home }}/composer/vendor/bin/laravel"
     ##
     # Composer is the dependency and package manager for PHP.
     #
@@ -44,15 +48,14 @@
             mode: u=rwx,go=r
 
         - name: Install Composer
-          become: true
           ansible.builtin.command:
             chdir: /tmp
             cmd: ./composer-setup.sh
-            creates: /usr/local/bin/composer
+            creates: "{{ werkstatt_xdg_bin_home }}/composer"
 
         - name: Add bash completions for Composer
           ansible.builtin.shell:
-            cmd: composer completion bash >> {{ werkstatt_xdg_data_home }}/bash-completion/completions/composer
+            cmd: "{{ werkstatt_composer }} completion bash >> {{ werkstatt_xdg_data_home }}/bash-completion/completions/composer"
             creates: "{{ werkstatt_xdg_data_home }}/bash-completion/completions/composer"
 
         - name: Add bash path for globally installed Composer packages
@@ -68,7 +71,7 @@
     ##
     - name: Carbon
       ansible.builtin.command:
-        cmd: composer global require nesbot/carbon
+        cmd: "{{ werkstatt_composer }} global require nesbot/carbon"
         creates: "{{ werkstatt_xdg_config_home }}/composer/vendor/nesbot/carbon"
 
     ##
@@ -80,7 +83,7 @@
     ##
     - name: PsySH
       ansible.builtin.command:
-        cmd: composer global require psy/psysh
+        cmd: "{{ werkstatt_composer }} global require psy/psysh"
         creates: "{{ werkstatt_xdg_config_home }}/composer/vendor/psy/psysh"
 
     ##
@@ -89,6 +92,13 @@
     # @see  {@link https://laravel.com}
     ##
     - name: Laravel
-      ansible.builtin.command:
-        cmd: composer global require laravel/installer
-        creates: "{{ werkstatt_xdg_config_home }}/composer/vendor/laravel/installer"
+      block:
+        - name: Install Laravel installer
+          ansible.builtin.command:
+            cmd: "{{ werkstatt_composer }} global require laravel/installer"
+            creates: "{{ werkstatt_xdg_config_home }}/composer/vendor/laravel/installer"
+
+        - name: Add bash completions for Laravel installer
+          ansible.builtin.shell:
+            cmd: "{{ werkstatt_laravel }} completion bash >> {{ werkstatt_xdg_data_home }}/bash-completion/completions/laravel"
+            creates: "{{ werkstatt_xdg_data_home }}/bash-completion/completions/laravel"
