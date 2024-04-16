@@ -42,8 +42,8 @@
     - name: Composer
       block:
         - name: Deploy shell script for installing Composer
-          ansible.builtin.copy:
-            src: composer-setup.sh
+          ansible.builtin.template:
+            src: composer-setup.sh.jina
             dest: /tmp/composer-setup.sh
             mode: u=rwx,go=r
 
