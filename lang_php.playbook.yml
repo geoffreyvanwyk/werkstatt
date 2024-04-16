@@ -1,0 +1,94 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that runs installs the PHP programming language and utilities to work with PHP.
+#
+# @see        {@link https://www.php.net}
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+##
+---
+- name: PHP Programming Language
+  hosts: all
+
+  roles:
+    - role: geoffreyvanwyk.php
+      php_version: 8.3
+      become: true
+
+  tasks:
+    ##
+    # Composer is the dependency and package manager for PHP.
+    #
+    # @see  {@link https://getcomposer.org}
+    ##
+    - name: Composer
+      block:
+        - name: Deploy shell script for installing Composer
+          ansible.builtin.copy:
+            src: composer-setup.sh
+            dest: /tmp/composer-setup.sh
+            mode: u=rwx,go=r
+
+        - name: Install Composer
+          become: true
+          ansible.builtin.command:
+            chdir: /tmp
+            cmd: ./composer-setup.sh
+            creates: /usr/local/bin/composer
+
+        - name: Add bash completions for Composer
+          ansible.builtin.shell:
+            cmd: composer completion bash >> {{ werkstatt_xdg_data_home }}/bash-completion/completions/composer
+            creates: "{{ werkstatt_xdg_data_home }}/bash-completion/completions/composer"
+
+        - name: Add bash path for globally installed Composer packages
+          vars:
+            bash_paths_to_add:
+              - "{{ werkstatt_xdg_config_home }}/composer/vendor/bin"
+          ansible.builtin.include_tasks: ./tasks/bash_add_paths.yml
+
+    ##
+    # Carbon is a  simple PHP API extension for DateTime.
+    #
+    # @see  {@link https://carbon.nesbot.com}
+    ##
+    - name: Carbon
+      ansible.builtin.command:
+        cmd: composer global require nesbot/carbon
+        creates: "{{ werkstatt_xdg_config_home }}/composer/vendor/nesbot/carbon"
+
+    ##
+    # PsySH can be used as an interactive debugger, much like
+    # JavaScript's debugger statement, saving you from endless
+    # var_dump() and die() iterations
+    #
+    # @see  {@link https://psysh.org}
+    ##
+    - name: PsySH
+      ansible.builtin.command:
+        cmd: composer global require psy/psysh
+        creates: "{{ werkstatt_xdg_config_home }}/composer/vendor/psy/psysh"
+
+    ##
+    # Laravel: The PHP Framework for Artisans
+    #
+    # @see  {@link https://laravel.com}
+    ##
+    - name: Laravel
+      ansible.builtin.command:
+        cmd: composer global require laravel/installer
+        creates: "{{ werkstatt_xdg_config_home }}/composer/vendor/laravel/installer"
