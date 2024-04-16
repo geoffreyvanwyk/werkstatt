@@ -1,0 +1,147 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that installs the Ruby programming lanuage and tools to work with it.
+#
+# @see        {@link https://www.ruby-lang.org} Ruby Programming Language
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+##
+---
+- name: Ruby Programming Language
+  hosts: all
+
+  tasks:
+    - name: Set Ruby facts for Werkstatt
+      ansible.builtin.set_fact:
+        werkstatt_rbenv_version: 1.2.0
+        werkstatt_rubybuild_version: "20240416"
+        werkstatt_ruby_version: 3.3.0
+        werkstatt_rbenv_root: "{{ ansible_env.HOME }}/.rbenv"
+        werkstatt_rbenv: "{{ ansible_env.HOME }}/.rbenv/bin/rbenv"
+        werkstatt_ruby: "{{ ansible_env.HOME }}/.rbenv/shims/ruby"
+        werkstatt_gem: "{{ ansible_env.HOME }}/.rbenv/shims/gem"
+
+##
+# rbenv manages your app's Ruby environment.
+#
+# @see  {@link https://github.com/rbenv/rbenv}
+##
+- name: RBENV
+  hosts: all
+
+  tasks:
+    - name: Installation of rbenv & ruby-build
+      block:
+        - name: Clone rbenv source code repository
+          ansible.builtin.git:
+            repo: https://github.com/rbenv/rbenv
+            version: "v{{ werkstatt_rbenv_version }}"
+            dest: "{{ werkstatt_rbenv_root }}"
+
+        - name: Create directory for rbenv plugins
+          ansible.builtin.file:
+            path: "{{ werkstatt_rbenv_root }}/plugins"
+            state: directory
+            mode: u=rwX,go=rX
+
+        - name: Clone ruby-build source code repository
+          ansible.builtin.git:
+            repo: https://github.com/rbenv/ruby-build
+            version: v{{ werkstatt_rubybuild_version }}
+            dest: "{{ werkstatt_rbenv_root }}/plugins/ruby-build"
+
+        - name: Integrate rbenv with bash
+          block:
+            - name: Add bash environment variables for rbenv
+              vars:
+                bash_envs_to_add:
+                  RBENV_ROOT: "{{ werkstatt_rbenv_root }}"
+              ansible.builtin.include_tasks: tasks/bash_add_env.yml
+
+            - name: Add bash executable path for rbenv
+              vars:
+                bash_paths_to_add:
+                  - "{{ werkstatt_rbenv_root }}/bin"
+              ansible.builtin.include_tasks: tasks/bash_add_paths.yml
+
+            - name: Add bash plugin for rbenv
+              vars:
+                bash_plugins_to_add:
+                  - 'eval "$(rbenv init -)"'
+              ansible.builtin.include_tasks: tasks/bash_add_plugins.yml
+
+    - name: Installation of latest Ruby
+      block:
+        - name: Install Ubuntu packages needed to compile Ruby
+          become: true
+          ansible.builtin.apt:
+            package:
+              - autoconf
+              - patch
+              - build-essential
+              - rustc
+              - libssl-dev
+              - libyaml-dev
+              - libreadline6-dev
+              - zlib1g-dev
+              - libgmp-dev
+              - libncurses5-dev
+              - libffi-dev
+              - libgdbm6
+              - libgdbm-dev
+              - libdb-dev
+              - uuid-dev
+
+        - name: Is required Ruby version already installed?
+          ansible.builtin.stat:
+            path: "{{ werkstatt_rbenv_root }}/versions/{{ werkstatt_ruby_version }}"
+          register: werkstatt_stat_ruby_version
+
+        - name: Install Ruby
+          when: not werkstatt_stat_ruby_version.stat.exists
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            cmd: "{{ werkstatt_rbenv }} install {{ werkstatt_ruby_version }}"
+          changed_when: not werkstatt_stat_ruby_version.stat.exists
+
+        - name: Has a global Ruby version been set?
+          ansible.builtin.stat:
+            path: "{{ werkstatt_rbenv_root }}/version"
+          register: werkstatt_stat_ruby_global_version
+
+        - name: Obtain current global Ruby version
+          when: werkstatt_stat_ruby_global_version.stat.exists
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            chdir: "{{ werkstatt_rbenv_root }}"
+            cmd: \cat version
+          changed_when: false
+          register: werkstatt_current_ruby_global_version
+
+        - name: Is current global Ruby the desired version?
+          ansible.builtin.set_fact:
+            werkstatt_is_global_ruby_version_correct: "{{
+              werkstatt_stat_ruby_global_version.stat.exists
+              and
+              werkstatt_current_ruby_global_version.stdout == werkstatt_ruby_version }}"
+
+        - name: Set global Ruby version
+          when: not werkstatt_is_global_ruby_version_correct
+          ansible.builtin.shell:
+            executable: /usr/bin/bash
+            cmd: "{{ werkstatt_rbenv }} global {{ werkstatt_ruby_version }}"
+          changed_when: not werkstatt_is_global_ruby_version_correct
