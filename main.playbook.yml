@@ -90,8 +90,8 @@
 - name: Python Programming Language
   ansible.builtin.import_playbook: ./lang_python.playbook.yml
 
-# - name: Ruby Programming Language
-#   ansible.builtin.import_playbook: ./lang_ruby.playbook.yml
+- name: Ruby Programming Language
+  ansible.builtin.import_playbook: ./lang_ruby.playbook.yml
 
 - name: JavaScript Programming Language
   ansible.builtin.import_playbook: ./lang_javascript.playbook.yml
