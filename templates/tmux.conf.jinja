@@ -1,0 +1,60 @@
+#------------------------------------------------------------------------------
+#---# General {{{1
+
+set -g mouse on
+
+#------------------------------------------------------------------------------
+#---# Appearance {{{1
+
+# Tell Tmux that the terminal emulator supports 256 colors.
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",xterm-256color:Tc"
+
+
+#------------------------------------------------------------------------------
+#---# Key Bindings {{{1
+
+bind-key | split-window -h
+bind-key - split-window
+
+#------------------------------------------------------------------------------
+#---# Status {{{1
+
+# Leave enough space for session name
+set -g status-left-length 110
+
+set -g status-position top
+
+#------------------------------------------------------------------------------
+#---# Windows and Panes {{{1
+
+# Start windows and panes at 1, not 0
+set -g base-index 1
+set -g pane-base-index 1
+
+# Do not allow Tmux to automatically rename windows.
+set-option -g allow-rename off
+
+#------------------------------------------------------------------------------
+#---# Plug-ins {{{1
+
+#------# Installation {{{2
+
+{% for werkstatt_tmux_plugin in werkstatt_tmux_plugins %}
+
+set -g @plugin '[[ werkstatt_tmux_plugin.owner ]]/[[ werkstatt_tmux_plugin.repository ]]{% if werkstatt_tmux_plugin.branch %}#[[ werkstatt_tmux_plugin.branch ]]{% endif %}'
+
+{% endfor %}
+
+#------# Configuration {{{2
+
+#---------# Catppuccin {{{3
+set -g @catppuccin_status_modules_right "session date_time"
+set -g @catppuccin_window_current_text "#W"
+set -g @catppuccin_window_default_text "#W"
+
+#------------------------------------------------------------------------------
+# Initialize Tmux plugin manager (keep this line at the very bottom of this
+# configuration file. 
+run '[[ werkstatt_xdg_config_home ]]/tmux/plugins/tpm/tpm'
+

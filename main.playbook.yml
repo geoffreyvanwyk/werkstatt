@@ -108,8 +108,8 @@
 - name: Git for Version Control of Source Code
   ansible.builtin.import_playbook: ./versioncontrol_git.playbook.yml
 
-# - name: Tmux Multiplexer
-#   ansible.builtin.import_playbook: ./multiplexer_tmux.playbook.yml
+- name: Tmux Multiplexer
+  ansible.builtin.import_playbook: ./multiplexer_tmux.playbook.yml
 
 - name: Utility Programmes
   ansible.builtin.import_playbook: ./utils.playbook.yml
