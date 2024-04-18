@@ -91,15 +91,15 @@
         - name: Add bash aliases for eza
           vars:
             bash_aliases_to_add:
-              l: eza --icons
-              ls: eza --icons
-              la: eza --all --icons
-              ll: eza --long --icons --git
-              lla: eza --long --all --icons --git
-              llt: eza --long --tree --icons --git
-              llta: eza --long --tree --all --icons --git
-              lt: eza --tree --icons
-              lta: eza --tree --all --icons
+              l: eza --all --icons
+              ls: eza --all --icons
+              lv: eza --icons
+              ll: eza --all --long --git --icons
+              llv: eza --long --git --icons
+              llt: eza --all --long --tree --git --icons
+              lltv: eza --long --tree --git --icons
+              lt: eza --all --tree --icons
+              ltv: eza --tree --icons
           ansible.builtin.include_tasks: tasks/bash_add_aliases.yml
 
     ##
