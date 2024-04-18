@@ -1,5 +1,27 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that installs Ansible and related tools.
+#
+# @see        {@link https://docs.ansible.com/ansible}
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+##
 ---
-- name: Install and configure Ansible
+- name: Ansible for Automation
   hosts: all
 
   tasks:
@@ -11,24 +33,32 @@
         package: sshpass
         state: present
 
-    - name: Add abbreviations for Ansible commands
+    - name: Add bash aliases for Ansible commands
       vars:
-        fish_abbreviations_to_add:
+        bash_aliases_to_add:
           a: ansible
+          al: ansible-lint
           ap: ansible-playbook
           agx: ansible-galaxy
           mol: molecule
-      ansible.builtin.include_tasks: tasks/fish_add_abbreviations.yml
+      ansible.builtin.include_tasks: ./tasks/bash_add_aliases.yml
 
-    - name: Install Ansible packages into the main Python virtual environment
-      ansible.builtin.shell:
-        executable: "{{ werkstatt_fish_path }}"
-        cmd: |
-          vf activate main
-          pip install {{ item }}
-        creates: ~/.virtualenvs/main/bin/{{ item }}
-      loop:
-        - ansible
-        - ansible-lint
-        - molecule
-        - molecule-plugins[docker]
+    - name: Install ansible
+      vars:
+        pipx_app_to_install: ansible
+      ansible.builtin.include_tasks: tasks/pipx_install_app.yml
+
+    - name: Install ansible-lint
+      vars:
+        pipx_app_to_install: ansible-lint
+      ansible.builtin.include_tasks: tasks/pipx_install_app.yml
+
+    - name: Install molecule
+      vars:
+        pipx_app_to_install: molecule
+      ansible.builtin.include_tasks: tasks/pipx_install_app.yml
+
+    - name: Install docker plugin for molecule
+      vars:
+        pipx_app_to_install: molecule-plugins[docker]
+      ansible.builtin.include_tasks: tasks/pipx_install_app.yml

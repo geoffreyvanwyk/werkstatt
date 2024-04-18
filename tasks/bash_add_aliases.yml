@@ -1,6 +1,5 @@
 ---
 - name: Create bash aliases file
-  become: true
   ansible.builtin.copy:
     content: ""
     dest: "{{ werkstatt_data_dir }}/bash_aliases"
@@ -8,7 +7,6 @@
     mode: u=rw,go=r
 
 - name: Add bash aliases
-  become: true
   loop: "{{ bash_aliases_to_add | dict2items }}"
   ansible.builtin.lineinfile:
     path: "{{ werkstatt_data_dir }}/bash_aliases"

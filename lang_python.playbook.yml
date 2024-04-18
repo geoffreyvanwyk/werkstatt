@@ -34,17 +34,6 @@
           py: python
       ansible.builtin.include_tasks: tasks/bash_add_aliases.yml
 
-    - name: Set Python facts for Werkstatt
-      ansible.builtin.set_fact:
-        werkstatt_pyenv_version: 2.4.0
-        werkstatt_python_version: 3.12.2
-        werkstatt_pyenv_root: "{{ ansible_env.HOME }}/.pyenv"
-        werkstatt_pyenv: "{{ ansible_env.HOME }}/.pyenv/bin/pyenv"
-        werkstatt_python: "{{ ansible_env.HOME }}/.pyenv/shims/python"
-        werkstatt_pip: "{{ ansible_env.HOME }}/.pyenv/shims/pip"
-        werkstatt_pipx: "{{ ansible_env.HOME }}/.pyenv/shims/pipx"
-        werkstatt_poetry: "{{ werkstatt_xdg_bin_home }}/poetry"
-
 ##
 # pyenv provides simple Python version management.
 #
