@@ -102,3 +102,10 @@
       ansible.builtin.command:
         cmd: "{{ werkstatt_xdg_config_home }}/tmux/plugins/tpm/bin/install_plugins"
       changed_when: werkstatt_are_some_tmux_plugins_not_installed
+
+    - name: Install tmuxinator
+      community.general.gem:
+        executable: "{{ werkstatt_gem }}"
+        bindir: "{{ werkstatt_rbenv_root }}/versions/{{ werkstatt_ruby_version }}/bin"
+        name: tmuxinator
+      register: werkstatt_install_tmuxinator

@@ -21,20 +21,6 @@
 # @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
 ##
 ---
-- name: Ruby Programming Language
-  hosts: all
-
-  tasks:
-    - name: Set Ruby facts for Werkstatt
-      ansible.builtin.set_fact:
-        werkstatt_rbenv_version: 1.2.0
-        werkstatt_rubybuild_version: "20240416"
-        werkstatt_ruby_version: 3.3.0
-        werkstatt_rbenv_root: "{{ ansible_env.HOME }}/.rbenv"
-        werkstatt_rbenv: "{{ ansible_env.HOME }}/.rbenv/bin/rbenv"
-        werkstatt_ruby: "{{ ansible_env.HOME }}/.rbenv/shims/ruby"
-        werkstatt_gem: "{{ ansible_env.HOME }}/.rbenv/shims/gem"
-
 ##
 # rbenv manages your app's Ruby environment.
 #
