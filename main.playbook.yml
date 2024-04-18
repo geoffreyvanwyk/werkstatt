@@ -116,8 +116,8 @@
 
 - name: Docker for Containerization
   ansible.builtin.import_playbook: ./containers_docker.playbook.yml
-# - name: Automation with Ansible
-#   ansible.builtin.import_playbook: ./automation_ansible.playbook.yml
 
+- name: Ansible for Automation
+  ansible.builtin.import_playbook: ./automation_ansible.playbook.yml
 # - name: Neovim Text Editor
 #   ansible.builtin.import_playbook: ./editor_neovim.playbook.yml

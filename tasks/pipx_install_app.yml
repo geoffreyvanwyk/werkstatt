@@ -8,5 +8,5 @@
 - name: Install application with pipx
   when: not pipx_app_to_install in werkstatt_list_of_pipx_packages.stdout
   ansible.builtin.command:
-    cmd: "{{ werkstatt_pipx }} install {{ pipx_app_to_install }}"
+    cmd: "{{ werkstatt_pipx }} install --include-deps {{ pipx_app_to_install }}"
   changed_when: not pipx_app_to_install in werkstatt_list_of_pipx_packages.stdout
