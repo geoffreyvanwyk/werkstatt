@@ -28,6 +28,7 @@
     - role: geoffreyvanwyk.php
       php_version: 8.3
       php_mod_enabled:
+        - curl
         - sqlite3
         - xml
       become: true
