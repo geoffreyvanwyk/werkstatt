@@ -29,6 +29,7 @@
       php_version: 8.3
       php_mod_enabled:
         - sqlite3
+        - xml
       become: true
 
   tasks:
