@@ -109,3 +109,9 @@
         bindir: "{{ werkstatt_rbenv_root }}/versions/{{ werkstatt_ruby_version }}/bin"
         name: tmuxinator
       register: werkstatt_install_tmuxinator
+
+    - name: Add bash completions for tmuxinator
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.bash
+        dest: "{{ werkstatt_xdg_data_home }}/bash-completion/completions/tmuxinator"
+        mode: u=rw,go=r
