@@ -119,5 +119,6 @@
 
 - name: Ansible for Automation
   ansible.builtin.import_playbook: ./automation_ansible.playbook.yml
-# - name: Neovim Text Editor
-#   ansible.builtin.import_playbook: ./editor_neovim.playbook.yml
+
+- name: Neovim Text Editor
+  ansible.builtin.import_playbook: ./editor_neovim.playbook.yml

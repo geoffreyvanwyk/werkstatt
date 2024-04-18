@@ -1,30 +1,53 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that installs the Neovim text editor and the AstroNvim
+# distribution.
+#
+# @see        {@link https://neovim.io}
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+##
 ---
-- name: NeoVim Text Editor
+- name: Neovim Text Editor
   hosts: all
 
   tasks:
-    - name: Create directory for NeoVim
+    - name: Create directory for neovim
       become: true
       ansible.builtin.file:
         path: /opt/neovim
         state: directory
         mode: u=rwx,go=rx
 
-    - name: Download NeoVim AppImage
+    - name: Download neovim appimage
       become: true
       ansible.builtin.get_url:
         url: https://github.com/neovim/neovim/releases/download/v0.9.5/nvim.appimage
         dest: /opt/neovim/nvim.appimage
         mode: u=rwx,g=rx,o=rx
 
-    - name: Extract AppImage
+    - name: Extract appimage
       become: true
       ansible.builtin.command:
         chdir: /opt/neovim
         cmd: ./nvim.appimage --appimage-extract
         creates: /opt/neovim/squashfs-root
 
-    - name: Install NeoVim
+    - name: Install neovim
       become: true
       ansible.builtin.file:
         src: /opt/neovim/squashfs-root/usr/bin/nvim
@@ -32,6 +55,12 @@
         state: link
         mode: u=rwx,go=rx
 
+##
+# AstroNvim is an aesthetically pleasing and feature-rich Neovim
+# configuration that focuses on extensibility and usability.
+#
+# @see  {@link https://astronvim.com/}
+##
 - name: Install AstroNvim
   hosts: all
 
@@ -43,7 +72,7 @@
     - name: Has AstroNvim templete already been cloned?
       ansible.builtin.stat:
         path: "{{ ansible_env.XDG_CONFIG_HOME }}/nvim"
-      register: werkstatt_stat_astronvim 
+      register: werkstatt_stat_astronvim
 
     - name: Clone AstroNvim template
       when: not werkstatt_stat_astronvim.stat.exists
@@ -58,3 +87,7 @@
       ansible.builtin.file:
         path: "{{ ansible_env.XDG_CONFIG_HOME }}/nvim/.git"
         state: absent
+
+    - name: Install AstroNvim
+      ansible.builtin.command:
+        cmd: nvim --headless -c 'source ~/.config/nvim/init.lua' -c 'qall'
