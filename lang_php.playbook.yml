@@ -27,6 +27,8 @@
   roles:
     - role: geoffreyvanwyk.php
       php_version: 8.3
+      php_mod_enabled:
+        - sqlite3
       become: true
 
   tasks:
