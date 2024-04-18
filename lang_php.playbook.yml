@@ -28,9 +28,12 @@
     - role: geoffreyvanwyk.php
       php_version: 8.3
       php_mod_enabled:
+        # Modules required by Composer and Laravel
         - curl
+        - mbstring
         - sqlite3
         - xml
+        - zip
       become: true
 
   tasks:
