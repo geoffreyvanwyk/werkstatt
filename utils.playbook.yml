@@ -225,6 +225,19 @@
         pipx_app_to_install: tldr
       ansible.builtin.include_tasks: tasks/pipx_install_app.yml
 
+    ##
+    # unzip - list, test and extract compressed files in a ZIP archive
+    # 
+    # It is used by programs like Composer to great increase the speed 
+    # of installing PHP packages.
+    #
+    # @see  {@link https://infozip.sourceforge.net/UnZip.html}
+    ##
+    - name: UNZIP
+      become: true
+      ansible.builtin.apt:
+        package: unzip
+
 ##
 # gdu is a fast disk usage analyzer with a console interface, written in
 # Go.
