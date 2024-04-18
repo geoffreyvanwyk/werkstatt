@@ -1,6 +1,44 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible variables file for custom facts for Werkstatt. 
+#
+# All the facts are kept under group_vars so that playbooks can be run
+# individually.
+#
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+##
+---
+
+#--- General
+
 werkstatt_data_dir: "{{ ansible_env.HOME }}/.local/share/werkstatt"
 werkstatt_xdg_bin_home: "{{ ansible_env.HOME }}/.local/bin"
 werkstatt_xdg_cache_home: "{{ ansible_env.HOME }}/.cache"
 werkstatt_xdg_config_home: "{{ ansible_env.HOME }}/.config"
 werkstatt_xdg_data_home: "{{ ansible_env.HOME }}/.local/share"
 werkstatt_xdg_state_home: "{{ ansible_env.HOME }}/.local/state"
+
+#--- Ruby Programming Language
+
+werkstatt_rbenv_version: 1.2.0
+werkstatt_rubybuild_version: "20240416"
+werkstatt_ruby_version: 3.3.0
+werkstatt_rbenv_root: "{{ ansible_env.HOME }}/.rbenv"
+werkstatt_rbenv: "{{ ansible_env.HOME }}/.rbenv/bin/rbenv"
+werkstatt_ruby: "{{ ansible_env.HOME }}/.rbenv/shims/ruby"
+werkstatt_gem: "{{ ansible_env.HOME }}/.rbenv/shims/gem"
