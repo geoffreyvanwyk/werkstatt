@@ -1,0 +1,104 @@
+# This file is part of Werkstatt.
+#
+# Werkstatt is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# Werkstatt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Werkstatt. If not, see <https://www.gnu.org/licenses/>.
+
+##
+# Ansible playbook that installs the terminal multiplexer tmux, configures it,
+# adds plugins, and installs other useful programs to use with it.
+#
+# @see        {@link https://github.com/tmux/tmux}
+# @author     Geoffrey Bernardo van Wyk <geoffrey@vanwyk.biz>
+# @copyright  2024 Geoffrey Bernardo van Wyk {@link https://geoffreyvanwyk.dev}
+# @license    {@link http://www.gnu.org/copyleft/gpl.html} GNU GPL v3 or later
+##
+---
+- name: TMUX
+  hosts: all
+
+  vars:
+    werkstatt_tmux_plugins:
+      - owner: geoffreyvanwyk
+        repository: tpm
+        branch: 219-install-plugins-hangs
+      - owner: catppuccin
+        repository: tmux
+        branch: ""
+      - owner: tmux-plugins
+        repository: tmux-sensible
+        branch: ""
+      - owner: tmux-plugins
+        repository: tmux-prefix-highlight
+        branch: ""
+      - owner: geoffreyvanwyk
+        repository: tmux-which-key
+        branch: use-https-in-git-submodules
+
+  tasks:
+    - name: Install tmux
+      become: true
+      ansible.builtin.apt:
+        package: tmux
+
+    - name: Create tmux configuration directory
+      ansible.builtin.file:
+        path: "{{ werkstatt_xdg_config_home }}/tmux"
+        state: directory
+        mode: u=rwX,go=rX
+
+    - name: Add bash completions for tmux
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/imomaliev/tmux-bash-completion/master/completions/tmux
+        dest: "{{ werkstatt_xdg_data_home }}/bash-completion/completions/tmux"
+        mode: u=rw,go=r
+
+    - name: Create directory for tmux plugins
+      ansible.builtin.file:
+        path: "{{ werkstatt_xdg_config_home }}/tmux/plugins"
+        state: directory
+        mode: u=rwX,go=rX
+
+    - name: Install tmux plugin manager
+      ansible.builtin.git:
+        repo: https://github.com/geoffreyvanwyk/tpm
+        version: 219-install-plugins-hangs
+        dest: "{{ werkstatt_xdg_config_home }}/tmux/plugins/tpm"
+
+    - name: Deploy tmux configuration file
+      ansible.builtin.template:
+        src: tmux.conf.jinja
+        variable_start_string: "[["
+        variable_end_string: "]]"
+        dest: "{{ werkstatt_xdg_config_home }}/tmux/tmux.conf"
+        mode: u=rw,go=r
+
+    - name: Obtain list of directories of installed tmux plugins
+      ansible.builtin.find:
+        paths:
+          - "{{ werkstatt_xdg_config_home }}/tmux/plugins"
+        file_type: directory
+      register: werkstatt_find_tmux_plugin_directories
+
+    - name: Are all required tmux plugins installed already?
+      ansible.builtin.set_fact:
+        werkstatt_are_some_tmux_plugins_not_installed: "{{
+          werkstatt_tmux_plugins | length
+          >
+          werkstatt_find_tmux_plugin_directories.files | length }}"
+
+    - name: Install tmux plugins
+      when: werkstatt_are_some_tmux_plugins_not_installed
+      environment:
+        TMUX_PLUGIN_MANAGER_PATH: "{{ werkstatt_xdg_config_home }}/tmux/plugins"
+      ansible.builtin.command:
+        cmd: "{{ werkstatt_xdg_config_home }}/tmux/plugins/tpm/bin/install_plugins"
+      changed_when: werkstatt_are_some_tmux_plugins_not_installed
