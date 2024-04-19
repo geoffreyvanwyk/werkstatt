@@ -54,7 +54,12 @@
         dest: /usr/local/bin/nvim
         state: link
         mode: u=rwx,go=rx
-
+        
+    - name: Install xclip for system clipboard integration
+      become: true
+      ansible.builtin.apt:
+        package: xclip
+      
 ##
 # AstroNvim is an aesthetically pleasing and feature-rich Neovim
 # configuration that focuses on extensibility and usability.
