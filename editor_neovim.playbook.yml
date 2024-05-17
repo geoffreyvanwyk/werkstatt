@@ -54,12 +54,12 @@
         dest: /usr/local/bin/nvim
         state: link
         mode: u=rwx,go=rx
-        
+
     - name: Install xclip for system clipboard integration
       become: true
       ansible.builtin.apt:
         package: xclip
-      
+
 ##
 # AstroNvim is an aesthetically pleasing and feature-rich Neovim
 # configuration that focuses on extensibility and usability.
@@ -70,6 +70,13 @@
   hosts: all
 
   tasks:
+    - name: Install necessary APT packages
+      ansible.builtin.apt:
+        package:
+          # Required for Neorg
+          - luajit
+          - libluajit-5.1-dev
+
     - name: Install Treesitter CLI with Cargo
       community.general.cargo:
         name: tree-sitter-cli
