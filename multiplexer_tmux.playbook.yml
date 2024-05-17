@@ -39,9 +39,8 @@
       - owner: tmux-plugins
         repository: tmux-prefix-highlight
         branch: ""
-      - owner: geoffreyvanwyk
+      - owner: alexwforsythe
         repository: tmux-which-key
-        branch: use-https-in-git-submodules
 
   tasks:
     - name: Install tmux
