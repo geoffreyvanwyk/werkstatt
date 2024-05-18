@@ -45,20 +45,21 @@ About the directories:
 ### 3. Import Base Distribution
 
 1. Using Powershell, download the latest official WSL compressed image for
-   Ubuntu. The file is approximately **230 MB** large.
+   Ubuntu. The file is approximately **341 MB** large, and can take about
+   **15 minutes** to download.
 
    ```powershell
    Invoke-WebRequest `
-     -Uri https://cloud-images.ubuntu.com/wsl/jammy/current/ubuntu-jammy-wsl-amd64-wsl.rootfs.tar.gz `
-     -OutFile $HOME\WSL\Exports\ubuntu-jammy-wsl-amd64-wsl.rootfs.tar.gz
+     -Uri https://cloud-images.ubuntu.com/wsl/noble/current/ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz `
+     -OutFile $HOME\WSL\Exports\ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz
    ```
 
 2. Extract the image from the compressed archive. This should take only a few
    seconds. The file _ubuntu-jammy-wsl-amd64-wsl.rootfs.tar_ will appear in the
-   _Exports_ directory. It will have an approximate size of **700 MB**.
+   _Exports_ directory. It will have an approximate size of **1.1 GB**.
 
    ```powershell
-   7z e $HOME\WSL\Exports\ubuntu-jammy-wsl-amd64-wsl.rootfs.tar.gz `
+   7z e $HOME\WSL\Exports\ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz `
      -o"$HOME\WSL\Exports"
    ```
 
@@ -72,10 +73,10 @@ About the directories:
 
 4. Import the image into a distribution named _Fabrik_ (German word for
    factory). This will take a few seconds. The created
-   _$HOME\WSL\Distributions\Fabrik\ext4.vhdx_ will be approximately **850 MB**.
+   _$HOME\WSL\Distributions\Fabrik\ext4.vhdx_ will be approximately **1.2 GB**.
 
    ```powershell
-   wsl --import Fabrik $HOME\WSL\Distributions\Fabrik $HOME\WSL\Exports\ubuntu-jammy-wsl-amd64-wsl.rootfs.tar
+   wsl --import Fabrik $HOME\WSL\Distributions\Fabrik $HOME\WSL\Exports\ubuntu-noble-wsl-amd64-wsl.rootfs.tar
    ```
 
 ### 4. Prepare Base Distribution
@@ -137,7 +138,9 @@ About the directories:
     service ssh start
     ```
 
-9.  Return to Powershell by exiting from Fabrik. Fabrik will still be running in the background.
+9.  Return to Powershell by exiting from Fabrik. Fabrik should still be running
+    in the background. If not, reconnect to it; then, for the next step, open a
+    new tab in Windows Terminal for connecting to the control node.
 
     ```shell
     exit
@@ -170,11 +173,15 @@ About the directories:
     ansible-galaxy collection install --requirements-file requirements.yml
     ```
 
-13. Run the _fabrik.yml_ playbook to complete the preparation of the base
-    distribution. When prompted for "SSH password: ", enter `strong`.
+13. Run the _fabrik.playbook.yml_ playbook to complete the preparation of the base
+    distribution. When prompted for "SSH password: ", enter `strong`. If you
+    get an error during the "Gathering Facts" task about the remote host's
+    identification having changed, run the suggested command for fixing it:
+    `ssh-keygen -f "/home/werker/.ssh/known_hosts" -R "127.0.0.1"`, then try
+    again. This command should only take about **13 seconds**.
 
     ```shell
-    ansible-playbook --inventory 127.0.0.1, --user root --ask-pass playbooks/fabrik.yml
+    ansible-playbook --inventory 127.0.0.1, --user root --ask-pass fabrik.playbook.yml
     ```
 
 14. Return to Powershell by exiting the control node.
@@ -198,13 +205,13 @@ to get started fresh in the future.
    minutes and produce a file that is approximately **890 MB large**.
 
    ```powershell
-   wsl --export Fabrik $HOME\WSL\Exports\fabrik.tar
+   wsl --export Fabrik $HOME\WSL\Exports\fabrik-24.04.tar
    ```
 
 > **NOTE**
 > In the future, in case you want to build a fresh instance of Werkstatt,
 > instead of preparing the base distribution again, just import Fabrik from
-> this image. You might have to an existing instance of Fabrik firstly.
+> this image. You might have to destroy an existing instance of Fabrik firstly.
 >
 > ```powershell
 > wsl --terminate Fabrik
@@ -236,8 +243,9 @@ to get started fresh in the future.
 3. Connect to the control node, then change directory to the root of the
    Werkstatt repository.
 
-4. Build Werkstatt by running the `main.yml` Ansible playbook.
+4. Build Werkstatt by running the `main.yml` Ansible playbook. This can take
+   approximately **1 hour**.
 
    ```shell
-   ansible-playbook playbooks/main.yml
+   ansible-playbook main.playbook.yml
    ```
