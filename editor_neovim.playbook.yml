@@ -71,6 +71,7 @@
 
   tasks:
     - name: Install necessary APT packages
+      become: true
       ansible.builtin.apt:
         package:
           # Required for Neorg
