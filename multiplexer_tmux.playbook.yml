@@ -41,6 +41,7 @@
         branch: ""
       - owner: alexwforsythe
         repository: tmux-which-key
+        branch: ""
 
   tasks:
     - name: Install tmux
