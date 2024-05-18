@@ -81,11 +81,11 @@
         state: directory
         mode: u=rwX,go=rX
 
-- name: Starship - minimal, blazingly fast, infinitely customizable shell prompt
-  ansible.builtin.import_playbook: ./shellprompt_starship.playbook.yml
-
 - name: BASH - Bourne Again Shell
   ansible.builtin.import_playbook: ./shell_bash.playbook.yml
+
+- name: Starship - minimal, blazingly fast, infinitely customizable shell prompt
+  ansible.builtin.import_playbook: ./shellprompt_starship.playbook.yml
 
 - name: Python Programming Language
   ansible.builtin.import_playbook: ./lang_python.playbook.yml
