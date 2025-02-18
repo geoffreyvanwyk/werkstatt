@@ -77,6 +77,7 @@
           # Required for Neorg
           - luajit
           - libluajit-5.1-dev
+          - luarocks
 
     - name: Install Treesitter CLI with Cargo
       community.general.cargo:

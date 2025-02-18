@@ -227,8 +227,8 @@
 
     ##
     # unzip - list, test and extract compressed files in a ZIP archive
-    # 
-    # It is used by programs like Composer to great increase the speed 
+    #
+    # It is used by programs like Composer to greatly increase the speed
     # of installing PHP packages.
     #
     # @see  {@link https://infozip.sourceforge.net/UnZip.html}
@@ -237,6 +237,20 @@
       become: true
       ansible.builtin.apt:
         package: unzip
+
+    ##
+    # dos2unix - convert text file line endings between CRLF and LF
+    #
+    # This package contains utilities dos2unix, unix2dos, mac2unix,
+    # unix2mac to convert the line endings of text files between UNIX (LF),
+    # DOS (CRLF) and Mac (CR) formats.
+    #
+    # @see  {@link https://waterlan.home.xs4all.nl/dos2unix.html }
+    ##
+    - name: DOS2UNIX
+      become: true
+      ansible.builtin.apt:
+        package: dos2unix
 
 ##
 # gdu is a fast disk usage analyzer with a console interface, written in
