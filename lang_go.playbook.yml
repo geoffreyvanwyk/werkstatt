@@ -62,13 +62,27 @@
             path: /usr/local/go
             state: absent
 
-        - name: Extract & Install new Go version
+        - name: Extract new Go version
           become: true
           ansible.builtin.unarchive:
             src: /tmp/go{{ werkstatt_go_version }}.linux-amd64.tar.gz
             remote_src: true
             dest: /usr/local
             mode: u=rwX,go=rX
+
+        - name: Install new Go version
+          become: true
+          ansible.builtin.file:
+            state: link
+            src: /usr/local/go/bin/go
+            dest: /usr/local/bin/go
+
+        - name: Install new Go formatter version
+          become: true
+          ansible.builtin.file:
+            state: link
+            src: /usr/local/go/bin/gofmt
+            dest: /usr/local/bin/gofmt
 
     - name: Remove downloaded Go archive
       ansible.builtin.file:
