@@ -244,3 +244,16 @@
               >
               {{ werkstatt_xdg_data_home }}/bash-completion/completions/poetry
           changed_when: not werkstatt_stat_poetry_bash_completions.stat.exists
+
+    ##
+    # scrapy is an open source and collaborative framework for extracting
+    # the data you need from websites in a fast, simple, yet extensible way.
+    #
+    # @see  {@link https://scrapy.org}
+    ##
+    - name: SCRAPY
+      block:
+        - name: Install scrapy
+          vars:
+            pipx_app_to_install: scrapy
+          ansible.builtin.include_tasks: tasks/pipx_install_app.yml
