@@ -30,6 +30,7 @@
       php_mod_enabled:
         # Modules required by Composer and Laravel
         - curl
+        - intl # Required, for example, by php artisan db:show.
         - mbstring
         - sqlite3
         - xml
@@ -37,6 +38,11 @@
       become: true
 
   tasks:
+    - name: Install APT packages required by Composer, Laravel or Symfony
+      ansible.builtin.apt:
+        package:
+          - sqlite3 # Required, for example, by Laravel when using SQLite.
+
     - name: Set facts about PHP
       ansible.builtin.set_fact:
         werkstatt_composer: "{{ werkstatt_xdg_bin_home }}/composer"
